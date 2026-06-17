@@ -164,43 +164,47 @@ onBeforeUnmount(() => {
 
     <section class="sentence-tetris__task">任务：{{ target.zh }}</section>
 
-    <section class="sentence-tetris__board" aria-label="下落词块区域">
-      <button
-        v-for="block in activeBlocks"
-        :key="block.id"
-        type="button"
-        class="sentence-tetris__falling"
-        :class="`sentence-tetris__falling--${block.type}`"
-        :style="{ left: `${block.lane * 31 + 4}%`, top: `${block.top}%` }"
-        @click="catchBlock(block)"
-      >
-        {{ block.text }}
-      </button>
-      <div v-if="!running && !activeBlocks.length" class="sentence-tetris__empty">点击开始下落</div>
-    </section>
-
-    <HyrulePanel title="句型槽" kicker="Pattern">
-      <div class="sentence-tetris__slots">
-        <div class="sentence-tetris__fixed">Do you want to</div>
-        <button type="button" class="sentence-tetris__slot" :class="{ filled: slots.activity }" @click="placeHeldBlock('activity')">
-          {{ slots.activity || 'activity' }}
+    <section class="sentence-tetris__play">
+      <section class="sentence-tetris__board" aria-label="下落词块区域">
+        <button
+          v-for="block in activeBlocks"
+          :key="block.id"
+          type="button"
+          class="sentence-tetris__falling"
+          :class="`sentence-tetris__falling--${block.type}`"
+          :style="{ left: `${block.lane * 31 + 4}%`, top: `${block.top}%` }"
+          @click="catchBlock(block)"
+        >
+          {{ block.text }}
         </button>
-        <button type="button" class="sentence-tetris__slot" :class="{ filled: slots.time }" @click="placeHeldBlock('time')">
-          {{ slots.time || 'time' }}
-        </button>
-        <div class="sentence-tetris__fixed">?</div>
-      </div>
-      <p class="sentence-tetris__held">当前抓住：{{ heldBlock?.text || '无' }}</p>
-      <p class="sentence-tetris__preview">{{ sentence }}</p>
-    </HyrulePanel>
+        <div v-if="!running && !activeBlocks.length" class="sentence-tetris__empty">点击开始下落</div>
+      </section>
 
-    <section class="sentence-tetris__controls">
-      <button type="button" @click="startGame">开始下落</button>
-      <button type="button" @click="pauseGame">暂停</button>
-      <button type="button" @click="resetGame">重置</button>
+      <aside class="sentence-tetris__side">
+        <HyrulePanel title="句型槽" kicker="Pattern">
+          <div class="sentence-tetris__slots">
+            <div class="sentence-tetris__fixed">Do you want to</div>
+            <button type="button" class="sentence-tetris__slot" :class="{ filled: slots.activity }" @click="placeHeldBlock('activity')">
+              {{ slots.activity || 'activity' }}
+            </button>
+            <button type="button" class="sentence-tetris__slot" :class="{ filled: slots.time }" @click="placeHeldBlock('time')">
+              {{ slots.time || 'time' }}
+            </button>
+            <div class="sentence-tetris__fixed">?</div>
+          </div>
+          <p class="sentence-tetris__held">当前抓住：{{ heldBlock?.text || '无' }}</p>
+          <p class="sentence-tetris__preview">{{ sentence }}</p>
+        </HyrulePanel>
+
+        <section class="sentence-tetris__controls">
+          <button type="button" @click="startGame">开始下落</button>
+          <button type="button" @click="pauseGame">暂停</button>
+          <button type="button" @click="resetGame">重置</button>
+        </section>
+
+        <RouterLink :to="{ name: 'english-quest-training' }" class="sentence-tetris__back">返回训练场</RouterLink>
+      </aside>
     </section>
-
-    <RouterLink :to="{ name: 'english-quest-training' }" class="sentence-tetris__back">返回训练场</RouterLink>
   </main>
 </template>
 
@@ -210,7 +214,7 @@ onBeforeUnmount(() => {
 .sentence-tetris {
   display: grid;
   align-content: start;
-  gap: 12px;
+  gap: 18px;
 }
 
 .sentence-tetris__header {
@@ -225,7 +229,8 @@ onBeforeUnmount(() => {
 .sentence-tetris__stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  gap: 12px;
+  max-width: 760px;
 }
 
 .sentence-tetris__stats div,
@@ -240,7 +245,7 @@ onBeforeUnmount(() => {
 .sentence-tetris__stats div {
   display: grid;
   gap: 4px;
-  padding: 10px;
+  padding: 18px;
 }
 
 .sentence-tetris__stats span {
@@ -251,37 +256,50 @@ onBeforeUnmount(() => {
 
 .sentence-tetris__stats strong {
   color: @quest-gold;
-  font-size: 24px;
+  font-size: 32px;
   line-height: 1;
 }
 
 .sentence-tetris__task {
-  padding: 11px;
+  padding: 16px 18px;
   color: @quest-gold;
-  font-size: 13px;
+  font-size: 16px;
   line-height: 1.35;
   border-color: rgba(252, 196, 19, 0.38);
 }
 
+.sentence-tetris__play {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 18px;
+  align-items: start;
+}
+
+.sentence-tetris__side {
+  display: grid;
+  gap: 14px;
+}
+
 .sentence-tetris__board {
   position: relative;
-  height: 260px;
+  height: min(58vh, 560px);
+  min-height: 420px;
   overflow: hidden;
   background:
     linear-gradient(rgba(60, 211, 252, 0.06) 1px, transparent 1px),
     linear-gradient(90deg, rgba(60, 211, 252, 0.06) 1px, transparent 1px),
     rgba(0, 0, 0, 0.5);
-  background-size: 38px 38px;
+  background-size: 54px 54px;
   border-color: rgba(60, 211, 252, 0.38);
 }
 
 .sentence-tetris__falling {
   position: absolute;
   width: 29%;
-  min-height: 42px;
-  padding: 8px;
+  min-height: 58px;
+  padding: 12px;
   color: @quest-text;
-  font-size: 12px;
+  font-size: 16px;
   font-weight: 700;
   background: rgba(60, 211, 252, 0.16);
   border: 1px solid @quest-sheikah;
@@ -304,16 +322,15 @@ onBeforeUnmount(() => {
 
 .sentence-tetris__slots {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 8px;
+  gap: 10px;
 }
 
 .sentence-tetris__fixed,
 .sentence-tetris__slot {
-  min-height: 42px;
+  min-height: 54px;
   display: grid;
   place-items: center;
-  padding: 9px;
+  padding: 12px;
   color: @quest-text;
   text-align: center;
   background: rgba(0, 0, 0, 0.42);
@@ -367,5 +384,16 @@ onBeforeUnmount(() => {
   background: rgba(60, 211, 252, 0.16);
   border: 1px solid @quest-sheikah;
   cursor: pointer;
+}
+
+@media (max-width: 980px) {
+  .sentence-tetris__play {
+    grid-template-columns: 1fr;
+  }
+
+  .sentence-tetris__board {
+    height: 360px;
+    min-height: 320px;
+  }
 }
 </style>

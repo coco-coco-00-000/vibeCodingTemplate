@@ -7,8 +7,10 @@
 @quest-border: rgba(226, 222, 211, 0.3);
 
 .quest-screen {
-  min-height: 100%;
-  padding: 18px;
+  min-height: calc(100vh - 72px);
+  width: min(1280px, calc(100vw - 48px));
+  margin: 0 auto;
+  padding: 32px 0;
   color: @quest-text;
   background:
     repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 6px),
@@ -20,7 +22,7 @@
 .quest-title {
   margin: 0;
   color: @quest-text;
-  font-size: 28px;
+  font-size: 48px;
   line-height: 1.1;
   letter-spacing: 0;
 }
@@ -35,4 +37,15 @@
   color: @quest-muted;
   font-style: italic;
   line-height: 1.5;
+}
+
+@media (max-width: 720px) {
+  .quest-screen {
+    width: min(100vw - 28px, 1280px);
+    padding: 22px 0;
+  }
+
+  .quest-title {
+    font-size: 34px;
+  }
 }

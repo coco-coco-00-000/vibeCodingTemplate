@@ -22,8 +22,9 @@ export const useEnglishQuestStore = defineStore('englishQuest', () => {
   )
 
   function updateMastery(keys: SkillKey[], amount: number) {
+    const visibleKeys = keys.map((key) => (key === 'conversation-closing' ? 'response-understanding' : key))
     mastery.value = mastery.value.map((entry) =>
-      keys.includes(entry.key) ? { ...entry, value: increase(entry.value, amount) } : entry,
+      visibleKeys.includes(entry.key) ? { ...entry, value: increase(entry.value, amount) } : entry,
     )
   }
 

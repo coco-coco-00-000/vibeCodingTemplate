@@ -271,7 +271,5 @@ export const scenarioTasks: ScenarioTask[] = [
 export const initialMastery: MasteryEntry[] = [
   { key: 'activity-chunks', label: '活动词块', value: 20 },
   { key: 'invitation-pattern', label: '邀请句型', value: 10 },
-  { key: 'time-expressions', label: '时间表达', value: 35 },
-  { key: 'response-understanding', label: '回应理解', value: 10 },
-  { key: 'conversation-closing', label: '对话收束', value: 25 },
+  { key: 'response-understanding', label: '回应与收束', value: 15 },
 ]

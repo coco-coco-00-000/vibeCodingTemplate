@@ -1,6 +1,6 @@
 <template>
   <div class="quest-device-stage">
-    <div class="quest-device" role="application" aria-label="英语冒险训练营手机原型">
+    <div class="quest-device" role="application" aria-label="周末邀约手机原型">
       <div class="quest-device__bezel">
         <div class="quest-device__screen">
           <header class="quest-device__status" aria-label="手机状态栏">
@@ -8,10 +8,10 @@
             <span class="quest-device__signals">●●● 5G ▰</span>
           </header>
 
-          <section class="quest-device__appbar">
+          <section class="quest-device__appbar" :class="{ 'quest-device__appbar--compact': !currentTitle }">
             <div>
               <p>{{ currentKicker }}</p>
-              <h1>{{ currentTitle }}</h1>
+              <h1 v-if="currentTitle">{{ currentTitle }}</h1>
             </div>
           </section>
 
@@ -46,7 +46,7 @@ import { RouterLink, RouterView, useRoute } from 'vue-router'
 const route = useRoute()
 
 const pageMeta = {
-  'english-quest-hub': ['Weekend Quest', '英语冒险训练营'],
+  'english-quest-hub': ['weekend invitation', ''],
   'english-quest-training': ['Training Field', '语言训练场'],
   'english-quest-chunk-match': ['Mini Game', '语块消消乐'],
   'english-quest-sentence-blocks': ['Mini Game', '句型方块'],
@@ -134,6 +134,11 @@ const currentTitle = computed(() => currentMeta.value[1])
   min-height: 72px;
   padding: 12px 18px 16px;
   border-bottom: 1px solid rgba(233, 225, 209, 0.14);
+}
+
+.quest-device__appbar--compact {
+  min-height: 48px;
+  padding-block: 8px 10px;
 }
 
 .quest-device__appbar p {

@@ -1,12 +1,18 @@
 <template>
-  <RouterLink class="quest-entry-card" :class="{ 'quest-entry-card--locked': locked }" :to="to" :aria-disabled="locked">
+  <RouterLink
+    class="quest-entry-card"
+    :class="[`quest-entry-card--${tone}`, { 'quest-entry-card--locked': locked }]"
+    :to="to"
+    :aria-disabled="locked"
+  >
     <span class="quest-entry-card__icon" aria-hidden="true">{{ icon }}</span>
     <span class="quest-entry-card__content">
-      <span class="quest-entry-card__eyebrow">{{ eyebrow }}</span>
+      <span class="quest-entry-card__eyebrow">{{ kicker }}</span>
       <span class="quest-entry-card__title">{{ title }}</span>
-      <span class="quest-entry-card__summary">{{ summary }}</span>
+      <span class="quest-entry-card__summary">{{ copy }}</span>
+      <slot />
     </span>
-    <span class="quest-entry-card__status">{{ status }}</span>
+    <span v-if="tag" class="quest-entry-card__status">{{ tag }}</span>
   </RouterLink>
 </template>
 
@@ -16,14 +22,16 @@ import type { RouteLocationRaw } from 'vue-router'
 withDefaults(
   defineProps<{
     title: string
-    summary: string
-    eyebrow: string
-    status: string
+    copy: string
+    kicker: string
     icon: string
     to: RouteLocationRaw
+    tone: 'blue' | 'gold'
+    tag?: string
     locked?: boolean
   }>(),
   {
+    tag: '',
     locked: false,
   },
 )
@@ -42,7 +50,6 @@ withDefaults(
   color: @quest-text;
   text-decoration: none;
   background:
-    linear-gradient(135deg, rgba(252, 196, 19, 0.12), transparent 38%),
     linear-gradient(145deg, rgba(8, 18, 36, 0.86), rgba(42, 44, 39, 0.86));
   border: 1px solid rgba(233, 225, 209, 0.28);
   box-shadow:
@@ -52,6 +59,18 @@ withDefaults(
     border-color 0.18s ease,
     transform 0.18s ease,
     box-shadow 0.18s ease;
+}
+
+.quest-entry-card--blue {
+  background:
+    linear-gradient(135deg, rgba(60, 211, 252, 0.14), transparent 42%),
+    linear-gradient(145deg, rgba(8, 18, 36, 0.88), rgba(42, 44, 39, 0.86));
+}
+
+.quest-entry-card--gold {
+  background:
+    linear-gradient(135deg, rgba(252, 196, 19, 0.16), transparent 42%),
+    linear-gradient(145deg, rgba(31, 28, 18, 0.9), rgba(42, 44, 39, 0.86));
 }
 
 .quest-entry-card:hover {
@@ -82,7 +101,7 @@ withDefaults(
 .quest-entry-card__content {
   display: grid;
   min-width: 0;
-  gap: 6px;
+  gap: 8px;
 }
 
 .quest-entry-card__eyebrow,
@@ -94,7 +113,7 @@ withDefaults(
 
 .quest-entry-card__title {
   color: @quest-text;
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 700;
   line-height: 1.1;
 }

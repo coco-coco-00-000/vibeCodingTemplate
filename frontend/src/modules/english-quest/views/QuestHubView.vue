@@ -1,28 +1,34 @@
 <template>
   <main class="quest-screen quest-hub">
     <header class="quest-hub__header">
-      <h2 class="quest-title">周末邀约冒险</h2>
-      <p class="quest-copy">先刷熟语言技能，再进入微信实战。</p>
+      <h2 class="quest-title">周末邀约</h2>
+      <p class="quest-copy">先刷熟语言技能，再进入场景实战。</p>
     </header>
 
     <section class="quest-hub__entries" aria-label="学习入口">
       <QuestEntryCard
-        title="语言训练场"
-        eyebrow="Training Field"
-        summary="活动词块、邀请句、朋友回应和礼貌收尾。"
-        icon="⚔️"
-        :status="`${trainingProgress}%`"
         :to="{ name: 'english-quest-training' }"
-      />
+        title="语言训练场"
+        kicker="入口 A"
+        copy="活动词块、邀请句、回应和收尾。"
+        icon="⚔️"
+        tone="blue"
+        tag="推荐先开始"
+      >
+        <MasteryMeter label="训练进度" :value="trainingProgress" />
+      </QuestEntryCard>
       <QuestEntryCard
-        title="场景任务"
-        eyebrow="Scenario Quest"
-        summary="像真的微信聊天一样，完成周末邀约。"
-        icon="📱"
-        :status="scenarioStatus"
         :to="{ name: 'english-quest-scenario' }"
+        title="场景任务"
+        kicker="入口 B"
+        copy="像真的聊天一样，完成周末邀约。"
+        icon="📱"
+        tone="gold"
+        :tag="scenarioStatus"
         :locked="!allTrainingComplete"
-      />
+      >
+        <MasteryMeter label="场景进度" :value="scenarioProgress" />
+      </QuestEntryCard>
     </section>
 
     <HyrulePanel title="当前掌握度" kicker="Mastery" glow>

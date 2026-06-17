@@ -47,6 +47,54 @@ export interface TrainingStep {
   skillKeys: SkillKey[]
 }
 
+export type TrainingLevelKind =
+  | 'activity-cards'
+  | 'choice'
+  | 'matching'
+  | 'tagging'
+  | 'sentence-build'
+  | 'repeat'
+  | 'chat-explore'
+  | 'dialogue-order'
+
+export interface TrainingOption {
+  id: string
+  label: string
+  imageLabel?: string
+  emoji?: string
+}
+
+export interface TrainingPair {
+  left: string
+  right: string
+}
+
+export interface TrainingQuestion {
+  id: string
+  prompt: string
+  audioText?: string
+  imageLabel?: string
+  sentence?: string
+  options?: TrainingOption[]
+  correctOptionId?: string
+  pairs?: TrainingPair[]
+  orderedItems?: string[]
+  correctOrder?: string[]
+}
+
+export interface TrainingLevel {
+  id: string
+  missionId: TrainingMissionId
+  levelNumber: number
+  title: string
+  kind: TrainingLevelKind
+  screenCopy: string
+  questions: TrainingQuestion[]
+  feedback: string
+  completion: string
+  skillKeys: SkillKey[]
+}
+
 export interface MiniGame {
   id: string
   title: string

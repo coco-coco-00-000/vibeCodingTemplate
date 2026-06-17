@@ -1,6 +1,6 @@
 import { computed } from 'vue'
 import { storeToRefs } from 'pinia'
-import { miniGames, scenarioTasks, trainingSteps } from '../data/questContent'
+import { miniGames, scenarioTasks, trainingLevels, trainingSteps } from '../data/questContent'
 import { useEnglishQuestStore } from '../store'
 
 export function useQuestProgress() {
@@ -15,7 +15,7 @@ export function useQuestProgress() {
   } = storeToRefs(store)
 
   const trainingProgress = computed(() =>
-    Math.round((completedTrainingStepIds.value.length / trainingSteps.length) * 100),
+    Math.round((completedTrainingStepIds.value.length / trainingLevels.length) * 100),
   )
 
   const scenarioProgress = computed(() =>
@@ -40,6 +40,7 @@ export function useQuestProgress() {
     trainingProgress,
     scenarioProgress,
     recommendation,
+    trainingLevels,
     trainingSteps,
     miniGames,
     scenarioTasks,

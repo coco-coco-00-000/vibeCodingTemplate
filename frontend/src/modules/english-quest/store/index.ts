@@ -1,6 +1,6 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
-import { initialMastery, scenarioTasks, trainingSteps } from '../data/questContent'
+import { initialMastery, scenarioTasks, trainingLevels, trainingSteps } from '../data/questContent'
 import type { MasteryEntry, ScenarioTask, SkillKey } from '../types'
 
 function increase(value: number, amount: number) {
@@ -15,7 +15,7 @@ export const useEnglishQuestStore = defineStore('englishQuest', () => {
   const activeScenarioTaskId = ref(scenarioTasks[0]?.id ?? '')
 
   const completedTrainingCount = computed(() => completedTrainingStepIds.value.length)
-  const allTrainingComplete = computed(() => completedTrainingCount.value >= trainingSteps.length)
+  const allTrainingComplete = computed(() => completedTrainingCount.value >= trainingLevels.length)
 
   const activeScenarioTask = computed<ScenarioTask | undefined>(() =>
     scenarioTasks.find((task) => task.id === activeScenarioTaskId.value),
@@ -30,7 +30,7 @@ export const useEnglishQuestStore = defineStore('englishQuest', () => {
 
   function completeTrainingStep(stepId: string) {
     if (completedTrainingStepIds.value.includes(stepId)) return
-    const step = trainingSteps.find((item) => item.id === stepId)
+    const step = [...trainingLevels, ...trainingSteps].find((item) => item.id === stepId)
     completedTrainingStepIds.value.push(stepId)
     if (step) updateMastery(step.skillKeys, 5)
   }

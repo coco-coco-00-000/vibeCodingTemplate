@@ -1,0 +1,39 @@
+@quest-bg: #66645d;
+@quest-panel: rgba(0, 0, 0, 0.58);
+@quest-sheikah: #3cd3fc;
+@quest-gold: #fcc413;
+@quest-text: #e9e1d1;
+@quest-muted: rgba(233, 225, 209, 0.68);
+@quest-border: rgba(226, 222, 211, 0.3);
+
+.quest-screen {
+  min-height: calc(100vh - 96px);
+  margin: -@space-lg;
+  padding: 32px;
+  color: @quest-text;
+  background:
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 6px),
+    radial-gradient(circle at 20% 10%, rgba(60, 211, 252, 0.16), transparent 26%),
+    linear-gradient(160deg, rgba(8, 18, 36, 0.96), rgba(31, 34, 30, 0.96)),
+    @quest-bg;
+}
+
+.quest-title {
+  margin: 0;
+  color: @quest-text;
+  font-size: 34px;
+  line-height: 1.1;
+  letter-spacing: 0;
+}
+
+.quest-kicker {
+  color: @quest-sheikah;
+  font-size: 12px;
+  font-style: italic;
+}
+
+.quest-copy {
+  color: @quest-muted;
+  font-style: italic;
+  line-height: 1.5;
+}

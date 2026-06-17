@@ -1,0 +1,277 @@
+import type {
+  ActivityChunk,
+  ClosingExpression,
+  FriendResponse,
+  MasteryEntry,
+  MiniGame,
+  ScenarioTask,
+  TimeExpression,
+  TrainingStep,
+} from '../types'
+
+export const activities: ActivityChunk[] = [
+  {
+    id: 'go-swimming',
+    text: 'go swimming',
+    zh: '去游泳',
+    imageLabel: '泳池和水花',
+    emoji: '🏊',
+    example: 'Do you want to go swimming this Saturday?',
+  },
+  {
+    id: 'play-basketball',
+    text: 'play basketball',
+    zh: '打篮球',
+    imageLabel: '篮球场',
+    emoji: '🏀',
+    example: 'Do you want to play basketball tomorrow?',
+  },
+  {
+    id: 'watch-a-movie',
+    text: 'watch a movie',
+    zh: '看电影',
+    imageLabel: '电影院',
+    emoji: '🎬',
+    example: 'Do you want to watch a movie this Sunday?',
+  },
+  {
+    id: 'go-shopping',
+    text: 'go shopping',
+    zh: '去购物',
+    imageLabel: '商店和购物袋',
+    emoji: '🛍️',
+    example: 'Do you want to go shopping tomorrow?',
+  },
+  {
+    id: 'play-video-games',
+    text: 'play video games',
+    zh: '打电子游戏',
+    imageLabel: '游戏手柄',
+    emoji: '🎮',
+    example: 'Do you want to play video games this Sunday?',
+  },
+]
+
+export const timeExpressions: TimeExpression[] = [
+  { id: 'this-saturday', text: 'this Saturday', zh: '这周六' },
+  { id: 'this-sunday', text: 'this Sunday', zh: '这周日' },
+  { id: 'tomorrow', text: 'tomorrow', zh: '明天' },
+]
+
+export const friendResponses: FriendResponse[] = [
+  { id: 'sounds-good', text: 'Sounds good.', zh: '听起来不错。', kind: 'accept' },
+  { id: 'sorry-cant', text: "Sorry, I can't.", zh: '抱歉，我不行。', kind: 'refuse' },
+  { id: 'maybe-next-time', text: 'Maybe next time.', zh: '下次吧。', kind: 'refuse' },
+]
+
+export const closingExpressions: ClosingExpression[] = [
+  { id: 'see-you-then', text: 'Great! See you then.', zh: '太好了，到时候见。', useWhen: 'accept' },
+  { id: 'no-problem', text: 'No problem.', zh: '没关系。', useWhen: 'refuse' },
+]
+
+export const trainingSteps: TrainingStep[] = [
+  {
+    id: 'activity-wall',
+    missionId: 'mission-1',
+    title: '活动卡墙：自由点亮',
+    goal: '探索并点亮 5 个活动词块。',
+    interaction: '点击卡片翻开，查看图片、英文、中文和音频。',
+    skillKeys: ['activity-chunks'],
+  },
+  {
+    id: 'listen-image',
+    missionId: 'mission-1',
+    title: '混合听音选图',
+    goal: '建立声音和活动意义的连接。',
+    interaction: '听活动词块，从 3-4 张活动图中选择。',
+    skillKeys: ['activity-chunks'],
+  },
+  {
+    id: 'text-image',
+    missionId: 'mission-1',
+    title: '混合看词选图',
+    goal: '建立英文形式和活动意义的连接。',
+    interaction: '看英文词块，选择对应活动图。',
+    skillKeys: ['activity-chunks'],
+  },
+  {
+    id: 'quick-match',
+    missionId: 'mission-1',
+    title: '词块图片快连线',
+    goal: '整合词形、意义和图像。',
+    interaction: '把英文词块和活动图片快速匹配。',
+    skillKeys: ['activity-chunks'],
+  },
+  {
+    id: 'alternate-recall',
+    missionId: 'mission-1',
+    title: '换图复现',
+    goal: '确认学生理解的是活动概念，不是记住单张图片。',
+    interaction: '同一活动换新图后重新识别。',
+    skillKeys: ['activity-chunks'],
+  },
+  {
+    id: 'image-output',
+    missionId: 'mission-1',
+    title: '抽样看图说活动',
+    goal: '让活动词块进入输出准备状态。',
+    interaction: 'Demo 中用点击词块模拟主动输出。',
+    skillKeys: ['activity-chunks'],
+  },
+  {
+    id: 'invite-function',
+    missionId: 'mission-2',
+    title: '发现邀请功能',
+    goal: '理解 Do you want to ...? 是用来发出邀请。',
+    interaction: '在微信式情境里判断句子功能。',
+    skillKeys: ['invitation-pattern'],
+  },
+  {
+    id: 'sentence-chunks',
+    missionId: 'mission-2',
+    title: '观察句型结构',
+    goal: '理解句子由邀请框架、活动、时间组成。',
+    interaction: '点击并标注三个语块。',
+    skillKeys: ['invitation-pattern', 'activity-chunks', 'time-expressions'],
+  },
+  {
+    id: 'activity-slot',
+    missionId: 'mission-2',
+    title: '活动填入句子',
+    goal: '把 Mission 1 的活动词块迁移进邀请句。',
+    interaction: '把活动词块拖入句型空格。',
+    skillKeys: ['invitation-pattern', 'activity-chunks'],
+  },
+  {
+    id: 'activity-time-sentence',
+    missionId: 'mission-2',
+    title: '活动 + 时间成句',
+    goal: '形成完整邀约句。',
+    interaction: '根据活动图和日历卡补全活动和时间。',
+    skillKeys: ['invitation-pattern', 'activity-chunks', 'time-expressions'],
+  },
+  {
+    id: 'chunk-build',
+    missionId: 'mission-2',
+    title: '语块拼完整句',
+    goal: '训练句型顺序和语块组合。',
+    interaction: '把打乱语块排成完整邀请句。',
+    skillKeys: ['invitation-pattern'],
+  },
+  {
+    id: 'repeat-full',
+    missionId: 'mission-2',
+    title: '跟读完整句',
+    goal: '让邀请句进入口语输出准备。',
+    interaction: 'Demo 中用点击完成跟读模拟。',
+    skillKeys: ['invitation-pattern'],
+  },
+  {
+    id: 'fade-transfer',
+    missionId: 'mission-2',
+    title: '撤提示迁移',
+    goal: '换活动、换时间后仍能组织邀请句。',
+    interaction: '只给活动图和时间卡，让学生选择完整句。',
+    skillKeys: ['invitation-pattern', 'activity-chunks', 'time-expressions'],
+  },
+  {
+    id: 'response-classify',
+    missionId: 'mission-2',
+    title: '回应分类',
+    goal: '被动理解朋友接受或拒绝。',
+    interaction: "判断 Sounds good / Sorry, I can't / Maybe next time 的含义。",
+    skillKeys: ['response-understanding'],
+  },
+  {
+    id: 'response-match',
+    missionId: 'mission-2',
+    title: '回应和表情匹配',
+    goal: '用情境降低回应理解难度。',
+    interaction: '把朋友回应和聊天气泡或表情匹配。',
+    skillKeys: ['response-understanding'],
+  },
+  {
+    id: 'choose-closing',
+    missionId: 'mission-2',
+    title: '根据朋友回应选择下一句',
+    goal: '学习接受和拒绝后如何收束对话。',
+    interaction: '朋友接受时选 Great! See you then.；朋友拒绝时选 No problem.',
+    skillKeys: ['conversation-closing'],
+  },
+  {
+    id: 'dialogue-order',
+    missionId: 'mission-2',
+    title: '小对话排序',
+    goal: '建立邀请、回应、收束的完整对话链。',
+    interaction: '把三条聊天消息排序成完整对话。',
+    skillKeys: ['invitation-pattern', 'response-understanding', 'conversation-closing'],
+  },
+]
+
+export const miniGames: MiniGame[] = [
+  {
+    id: 'chunk-match',
+    title: '语块消消乐',
+    description: '匹配活动词块、时间表达、回应和结束语。',
+    skillKeys: ['activity-chunks', 'time-expressions', 'response-understanding', 'conversation-closing'],
+    routeName: 'english-quest-chunk-match',
+  },
+  {
+    id: 'sentence-blocks',
+    title: '句型俄罗斯方块',
+    description: '抓住正确活动和时间，填入 Do you want to [activity] [time]?',
+    skillKeys: ['invitation-pattern', 'activity-chunks', 'time-expressions'],
+    routeName: 'english-quest-sentence-blocks',
+  },
+]
+
+export const scenarioTasks: ScenarioTask[] = [
+  {
+    id: 'mia-swimming',
+    friendName: 'Mia',
+    clue: '☀️🥵 I really want to jump into a pool. Saturday: free.',
+    activityId: 'go-swimming',
+    timeId: 'this-saturday',
+    responseId: 'sounds-good',
+    expectedInvitation: 'Do you want to go swimming this Saturday?',
+    expectedFollowUp: 'Great! See you then.',
+  },
+  {
+    id: 'leo-games',
+    friendName: 'Leo',
+    clue: 'New game card! Sunday: free.',
+    activityId: 'play-video-games',
+    timeId: 'this-sunday',
+    responseId: 'maybe-next-time',
+    expectedInvitation: 'Do you want to play video games this Sunday?',
+    expectedFollowUp: 'No problem.',
+  },
+  {
+    id: 'ben-basketball',
+    friendName: 'Ben',
+    clue: 'Basketball again? Tomorrow looks good.',
+    activityId: 'play-basketball',
+    timeId: 'tomorrow',
+    responseId: 'sounds-good',
+    expectedInvitation: 'Do you want to play basketball tomorrow?',
+    expectedFollowUp: 'Great! See you then.',
+  },
+  {
+    id: 'lily-shopping',
+    friendName: 'Lily',
+    clue: 'I need a birthday gift. Saturday is open.',
+    activityId: 'go-shopping',
+    timeId: 'this-saturday',
+    responseId: 'sorry-cant',
+    expectedInvitation: 'Do you want to go shopping this Saturday?',
+    expectedFollowUp: 'No problem.',
+  },
+]
+
+export const initialMastery: MasteryEntry[] = [
+  { key: 'activity-chunks', label: '活动词块', value: 20 },
+  { key: 'invitation-pattern', label: '邀请句型', value: 10 },
+  { key: 'time-expressions', label: '时间表达', value: 35 },
+  { key: 'response-understanding', label: '回应理解', value: 10 },
+  { key: 'conversation-closing', label: '对话收束', value: 25 },
+]

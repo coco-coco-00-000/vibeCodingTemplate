@@ -5,6 +5,7 @@ import { englishQuestRoutes } from '@/modules/english-quest'
 import { todoRoutes } from '@/modules/todo'
 
 const routes: RouteRecordRaw[] = [
+  ...englishQuestRoutes,
   {
     path: '/',
     component: DefaultLayout,
@@ -14,7 +15,6 @@ const routes: RouteRecordRaw[] = [
         name: 'home',
         redirect: { name: 'english-quest-hub' },
       },
-      ...englishQuestRoutes,
       ...todoRoutes,
     ],
   },

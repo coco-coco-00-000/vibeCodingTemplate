@@ -1,9 +1,8 @@
 <template>
   <main class="quest-screen quest-hub">
     <header class="quest-hub__header">
-      <p class="quest-kicker">Weekend Invitation Quest</p>
-      <h1 class="quest-title">英语冒险训练营</h1>
-      <p class="quest-copy">先在训练场刷熟语言技能，再进入微信邀约实战。</p>
+      <h2 class="quest-title">周末邀约冒险</h2>
+      <p class="quest-copy">先刷熟语言技能，再进入微信实战。</p>
     </header>
 
     <section class="quest-hub__entries" aria-label="学习入口">
@@ -52,7 +51,7 @@ const scenarioStatus = computed(() => (allTrainingComplete.value ? `${scenarioPr
 .quest-hub {
   display: grid;
   align-content: start;
-  gap: 22px;
+  gap: 16px;
 }
 
 .quest-hub__header {
@@ -67,20 +66,11 @@ const scenarioStatus = computed(() => (allTrainingComplete.value ? `${scenarioPr
 
 .quest-hub__entries {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
+  gap: 12px;
 }
 
 .quest-hub__meters {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 14px;
-}
-
-@media (max-width: 920px) {
-  .quest-hub__entries,
-  .quest-hub__meters {
-    grid-template-columns: 1fr;
-  }
+  gap: 12px;
 }
 </style>

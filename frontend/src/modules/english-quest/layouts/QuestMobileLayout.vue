@@ -8,10 +8,6 @@
 
       <nav class="quest-desktop__nav" aria-label="主导航">
         <RouterLink :to="{ name: 'english-quest-hub' }" active-class="is-active">首页</RouterLink>
-        <RouterLink :to="{ name: 'english-quest-training' }" active-class="is-active">训练场</RouterLink>
-        <RouterLink :to="{ name: 'english-quest-chunk-match' }" active-class="is-active">语块消消乐</RouterLink>
-        <RouterLink :to="{ name: 'english-quest-sentence-blocks' }" active-class="is-active">句子俄罗斯方块</RouterLink>
-        <RouterLink :to="{ name: 'english-quest-scenario' }" active-class="is-active">场景任务</RouterLink>
       </nav>
     </header>
 

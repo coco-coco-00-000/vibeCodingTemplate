@@ -12,6 +12,7 @@ const questionIndex = ref(0)
 const selectedOptionId = ref('')
 const revealed = ref(false)
 const tappedOptionIds = ref<string[]>([])
+const learningStarted = ref(false)
 
 const currentLevel = computed(() => trainingLevels[levelIndex.value])
 const currentQuestion = computed(() => currentLevel.value.questions[questionIndex.value])
@@ -67,18 +68,62 @@ function previousLevel() {
 function nextLevel() {
   if (levelIndex.value < trainingLevels.length - 1) levelIndex.value += 1
 }
+
+function startLearning() {
+  learningStarted.value = true
+}
 </script>
 
 <template>
   <main class="quest-screen training-field">
-    <header class="training-field__header">
+    <header v-if="learningStarted" class="training-field__header">
       <p class="quest-kicker">Training Shrine · {{ levelCounter }}</p>
       <h2 class="quest-title">Level {{ currentLevel.levelNumber }}：{{ currentLevel.title }}</h2>
       <p class="quest-copy">{{ currentLevel.screenCopy }}</p>
       <MasteryMeter label="主线进度" :value="trainingProgress" />
     </header>
 
-    <HyrulePanel :title="currentQuestion.prompt" :kicker="currentLevel.missionId === 'mission-1' ? 'Mission 1' : 'Mission 2'" glow>
+    <section v-if="!learningStarted" class="training-field__lobby" aria-label="语言训练场">
+      <header class="training-field__lobby-header">
+        <p class="quest-kicker">Training Shrine</p>
+        <h2 class="quest-title">语言训练场</h2>
+        <p class="quest-copy">先完成主线学习流程，再按需要用小游戏练得更熟。</p>
+      </header>
+
+      <HyrulePanel title="语言学习" kicker="Main Path" glow>
+        <div class="training-field__lobby-section">
+          <div>
+            <p class="training-field__section-copy">按关卡学习活动词块、邀约句、朋友回应和对话收尾。</p>
+            <MasteryMeter label="主线进度" :value="trainingProgress" />
+          </div>
+          <button type="button" class="training-field__start-button" @click="startLearning">开始主线学习</button>
+        </div>
+      </HyrulePanel>
+
+      <HyrulePanel title="趣味练习" kicker="Practice">
+        <div class="training-field__practice-grid">
+          <RouterLink
+            v-for="game in miniGames"
+            :key="game.id"
+            :to="{ name: game.routeName }"
+            class="training-field__practice-card"
+          >
+            <span class="training-field__practice-mark" aria-hidden="true">{{ game.id === 'chunk-match' ? '✦' : '▦' }}</span>
+            <strong>{{ game.title }}</strong>
+            <small>{{ game.id === 'chunk-match' ? '快速配对常用语块' : '拼出完整邀约句' }}</small>
+          </RouterLink>
+        </div>
+      </HyrulePanel>
+
+      <HyrulePanel title="技能掌握度" kicker="Mastery">
+        <div class="training-field__mastery">
+          <MasteryMeter v-for="entry in mastery" :key="entry.key" :label="entry.label" :value="entry.value" />
+        </div>
+      </HyrulePanel>
+    </section>
+
+    <template v-else>
+      <HyrulePanel :title="currentQuestion.prompt" :kicker="currentLevel.missionId === 'mission-1' ? 'Mission 1' : 'Mission 2'" glow>
       <section class="training-field__question" :class="`training-field__question--${currentLevel.kind}`">
         <div v-if="currentQuestion.audioText" class="training-field__audio">
           <span aria-hidden="true">🔊</span>
@@ -189,29 +234,30 @@ function nextLevel() {
           <template v-else>{{ currentLevel.completion }}</template>
         </div>
       </section>
-    </HyrulePanel>
+      </HyrulePanel>
 
-    <section class="training-field__actions">
+      <section class="training-field__actions">
       <button type="button" :disabled="levelIndex === 0" @click="previousLevel">上一关</button>
       <button type="button" class="training-field__primary" :disabled="!canContinue" @click="completeLevel">
         {{ isLastQuestion ? '完成本关' : '下一题' }}
       </button>
       <button type="button" :disabled="levelIndex === trainingLevels.length - 1" @click="nextLevel">下一关</button>
-    </section>
+      </section>
 
-    <HyrulePanel v-if="levelIndex === trainingLevels.length - 1 && isCurrentLevelComplete" title="训练场完成" kicker="Unlocked">
+      <HyrulePanel v-if="levelIndex === trainingLevels.length - 1 && isCurrentLevelComplete" title="训练场完成" kicker="Unlocked">
       <div class="training-field__finish">
         <p>语言技能已准备好。现在去场景任务里，给不同朋友发出真实邀约。</p>
         <RouterLink :to="{ name: 'english-quest-scenario' }">进入场景任务</RouterLink>
         <RouterLink v-for="game in miniGames" :key="game.id" :to="{ name: game.routeName }">{{ game.title }}</RouterLink>
       </div>
-    </HyrulePanel>
+      </HyrulePanel>
 
-    <HyrulePanel title="技能掌握度" kicker="Mastery">
-      <div class="training-field__mastery">
-        <MasteryMeter v-for="entry in mastery" :key="entry.key" :label="entry.label" :value="entry.value" />
-      </div>
-    </HyrulePanel>
+      <HyrulePanel title="技能掌握度" kicker="Mastery">
+        <div class="training-field__mastery">
+          <MasteryMeter v-for="entry in mastery" :key="entry.key" :label="entry.label" :value="entry.value" />
+        </div>
+      </HyrulePanel>
+    </template>
   </main>
 </template>
 
@@ -231,6 +277,87 @@ function nextLevel() {
 
 .training-field__header p {
   margin: 0;
+}
+
+.training-field__lobby {
+  display: grid;
+  gap: 16px;
+}
+
+.training-field__lobby-header {
+  display: grid;
+  gap: 10px;
+}
+
+.training-field__lobby-header p {
+  margin: 0;
+}
+
+.training-field__lobby-section {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 28px;
+  align-items: end;
+}
+
+.training-field__section-copy {
+  margin: 0 0 18px;
+  color: rgba(233, 225, 209, 0.72);
+  line-height: 1.7;
+}
+
+.training-field__start-button {
+  min-width: 150px;
+  min-height: 46px;
+  padding: 0 18px;
+  color: #1e1d17;
+  font-weight: 700;
+  background: @quest-gold;
+  border: 1px solid rgba(255, 242, 194, 0.82);
+}
+
+.training-field__practice-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.training-field__practice-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 14px;
+  align-items: center;
+  min-height: 108px;
+  padding: 18px;
+  color: @quest-text;
+  text-decoration: none;
+  background: rgba(60, 211, 252, 0.06);
+  border: 1px solid rgba(60, 211, 252, 0.28);
+}
+
+.training-field__practice-card:hover {
+  border-color: @quest-sheikah;
+  background: rgba(60, 211, 252, 0.12);
+}
+
+.training-field__practice-card strong,
+.training-field__practice-card small {
+  grid-column: 2;
+}
+
+.training-field__practice-card strong {
+  font-size: 18px;
+}
+
+.training-field__practice-card small {
+  margin-top: 6px;
+  color: rgba(233, 225, 209, 0.66);
+}
+
+.training-field__practice-mark {
+  grid-row: span 2;
+  color: @quest-gold;
+  font-size: 34px;
 }
 
 .training-field__question,

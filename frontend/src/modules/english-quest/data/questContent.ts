@@ -219,7 +219,7 @@ export const miniGames: MiniGame[] = [
   },
   {
     id: 'sentence-blocks',
-    title: '句型俄罗斯方块',
+    title: '句子俄罗斯方块',
     description: '抓住正确活动和时间，填入 Do you want to [activity] [time]?',
     skillKeys: ['invitation-pattern', 'activity-chunks', 'time-expressions'],
     routeName: 'english-quest-sentence-blocks',

@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { RouterLink } from 'vue-router'
 import HyrulePanel from '../components/HyrulePanel.vue'
 import MasteryMeter from '../components/MasteryMeter.vue'
 import { useQuestProgress } from '../composables/useQuestProgress'
+import activitySprite from '../assets/link-activity-sprite.png'
 
 const { completedTrainingStepIds, mastery, miniGames, store, trainingLevels, trainingProgress } = useQuestProgress()
 
@@ -13,6 +14,15 @@ const selectedOptionId = ref('')
 const revealed = ref(false)
 const tappedOptionIds = ref<string[]>([])
 const learningStarted = ref(false)
+const audioPlayingId = ref('')
+const activitySpriteIndexes: Record<string, number> = {
+  'go-swimming': 0,
+  'play-video-games': 1,
+  'play-basketball': 2,
+  'watch-a-movie': 3,
+  'go-shopping': 4,
+}
+let audioTimer: ReturnType<typeof window.setTimeout> | undefined
 
 const currentLevel = computed(() => trainingLevels[levelIndex.value])
 const currentQuestion = computed(() => currentLevel.value.questions[questionIndex.value])
@@ -48,7 +58,19 @@ function revealAnswer() {
   revealed.value = true
 }
 
-function tapCard(optionId: string) {
+function tapCard(optionId: string, text: string) {
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel()
+    const utterance = new SpeechSynthesisUtterance(text)
+    utterance.lang = 'en-US'
+    utterance.rate = 0.85
+    window.speechSynthesis.speak(utterance)
+  }
+  if (audioTimer) window.clearTimeout(audioTimer)
+  audioPlayingId.value = optionId
+  audioTimer = window.setTimeout(() => {
+    audioPlayingId.value = ''
+  }, 900)
   if (!tappedOptionIds.value.includes(optionId)) tappedOptionIds.value.push(optionId)
 }
 
@@ -72,6 +94,11 @@ function nextLevel() {
 function startLearning() {
   learningStarted.value = true
 }
+
+onBeforeUnmount(() => {
+  if (audioTimer) window.clearTimeout(audioTimer)
+  if ('speechSynthesis' in window) window.speechSynthesis.cancel()
+})
 </script>
 
 <template>
@@ -140,12 +167,23 @@ function startLearning() {
             :key="option.id"
             type="button"
             class="training-field__activity-card"
-            :class="{ 'is-revealed': tappedOptionIds.includes(option.id) }"
-            @click="tapCard(option.id)"
+            :class="{
+              'is-revealed': tappedOptionIds.includes(option.id),
+              'is-playing': audioPlayingId === option.id,
+            }"
+            @click="tapCard(option.id, option.label)"
           >
-            <span aria-hidden="true">{{ option.emoji }}</span>
+            <span
+              class="training-field__activity-image"
+              :style="{
+                backgroundImage: `url(${activitySprite})`,
+                '--activity-image-index': activitySpriteIndexes[option.id] ?? 0,
+              }"
+              aria-hidden="true"
+            />
             <strong>{{ option.label }}</strong>
             <small>{{ option.imageLabel }}</small>
+            <em v-if="tappedOptionIds.includes(option.id)">已点亮</em>
           </button>
         </div>
 
@@ -389,8 +427,8 @@ function startLearning() {
 
 .training-field__activity-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
 }
 
 .training-field__activity-card,
@@ -412,15 +450,45 @@ function startLearning() {
 
 .training-field__activity-card {
   display: grid;
-  min-height: 132px;
-  place-items: center;
-  align-content: center;
-  gap: 6px;
+  grid-template-rows: 142px auto auto auto;
+  min-height: 230px;
+  align-content: start;
+  gap: 7px;
+  padding: 0 0 14px;
   text-align: center;
+  overflow: hidden;
 }
 
-.training-field__activity-card span {
-  font-size: 34px;
+.training-field__activity-image {
+  width: 100%;
+  height: 142px;
+  display: block;
+  background-repeat: no-repeat;
+  background-position: calc(var(--activity-image-index) * 25%) center;
+  background-size: 500% 100%;
+  border-bottom: 1px solid rgba(60, 211, 252, 0.24);
+  filter: brightness(0.72) saturate(0.8);
+  transition: filter 0.22s ease, transform 0.22s ease;
+}
+
+.training-field__activity-card strong,
+.training-field__activity-card small,
+.training-field__activity-card em {
+  padding-inline: 12px;
+}
+
+.training-field__activity-card strong {
+  margin-top: 4px;
+}
+
+.training-field__activity-card em {
+  justify-self: center;
+  padding: 3px 8px;
+  color: #bff6ff;
+  font-size: 11px;
+  font-style: normal;
+  background: rgba(60, 211, 252, 0.16);
+  border: 1px solid rgba(60, 211, 252, 0.42);
 }
 
 .training-field__activity-card small,
@@ -449,8 +517,21 @@ function startLearning() {
 .training-field__option.is-correct,
 .training-field__pair.is-revealed,
 .training-field__activity-card.is-revealed {
-  border-color: rgba(60, 211, 252, 0.76);
-  box-shadow: 0 0 16px rgba(60, 211, 252, 0.16);
+  border-color: rgba(60, 211, 252, 0.92);
+  background: rgba(60, 211, 252, 0.08);
+  box-shadow: 0 0 22px rgba(60, 211, 252, 0.3), inset 0 0 22px rgba(60, 211, 252, 0.08);
+}
+
+.training-field__activity-card.is-revealed .training-field__activity-image {
+  filter: brightness(1.08) saturate(1.12);
+}
+
+.training-field__activity-card.is-playing .training-field__activity-image {
+  transform: scale(1.04);
+}
+
+.training-field__activity-card.is-playing {
+  box-shadow: 0 0 0 2px rgba(60, 211, 252, 0.9), 0 0 28px rgba(60, 211, 252, 0.42);
 }
 
 .training-field__option.is-wrong {

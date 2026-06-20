@@ -450,8 +450,8 @@ onBeforeUnmount(() => {
 
 .training-field__activity-card {
   display: grid;
-  grid-template-rows: 142px auto auto auto;
-  min-height: 230px;
+  grid-template-rows: auto auto auto auto;
+  min-height: 340px;
   align-content: start;
   gap: 7px;
   padding: 0 0 14px;
@@ -461,11 +461,11 @@ onBeforeUnmount(() => {
 
 .training-field__activity-image {
   width: 100%;
-  height: 142px;
+  aspect-ratio: 4 / 3;
   display: block;
   background-repeat: no-repeat;
   background-position: calc(var(--activity-image-index) * 25%) center;
-  background-size: 500% 100%;
+  background-size: 500% auto;
   border-bottom: 1px solid rgba(60, 211, 252, 0.24);
   filter: brightness(0.72) saturate(0.8);
   transition: filter 0.22s ease, transform 0.22s ease;
@@ -479,6 +479,8 @@ onBeforeUnmount(() => {
 
 .training-field__activity-card strong {
   margin-top: 4px;
+  font-size: 20px;
+  line-height: 1.2;
 }
 
 .training-field__activity-card em {

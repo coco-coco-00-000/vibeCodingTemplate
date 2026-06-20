@@ -213,7 +213,12 @@ onBeforeUnmount(() => {
         class="chunk-match__tile"
         :class="[
           `chunk-match__tile--${tile.category}`,
-          { 'is-selected': selectedTileId === tile.id, 'is-blocked': isBlocked(tile), 'is-vanishing': tile.vanishing },
+          {
+            'is-selected': selectedTileId === tile.id,
+            'is-blocked': isBlocked(tile),
+            'is-emoji': tile.isEmoji,
+            'is-vanishing': tile.vanishing,
+          },
         ]"
         :style="{
           left: `${tile.position.x * tileWidth}px`,
@@ -336,7 +341,6 @@ onBeforeUnmount(() => {
   transition: transform 0.1s, filter 0.2s;
 }
 
-.chunk-match__tile--time { border-top-color: @quest-gold; }
 .chunk-match__tile--phrase { border-top-color: #8ff38a; }
 
 .chunk-match__tile strong {
@@ -346,6 +350,12 @@ onBeforeUnmount(() => {
   text-align: center;
   overflow-wrap: anywhere;
   white-space: normal;
+}
+
+.chunk-match__tile.is-emoji strong {
+  font-size: 38px;
+  line-height: 1;
+  overflow-wrap: normal;
 }
 
 .chunk-match__tile-index,

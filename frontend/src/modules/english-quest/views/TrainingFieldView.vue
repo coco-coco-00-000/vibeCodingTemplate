@@ -33,14 +33,7 @@ const activityImagesByEmoji: Record<string, string> = {
   '🎬': linkMovie,
   '🛍️': linkShopping,
 }
-const activityImagesByLabel: Record<string, string> = {
-  '泳池图': linkSwimming,
-  '游戏手柄图': linkVideoGames,
-  '篮球场图': linkBasketball,
-  '电影院图': linkMovie,
-  '商店图': linkShopping,
-}
-const matchingImageOrder = ['商店图', '电影院图', '泳池图', '游戏手柄图', '篮球场图']
+const matchingTranslationOrder = ['去购物', '看电影', '去游泳', '打电子游戏', '打篮球']
 
 const selectedPairLeft = ref('')
 const matchedPairLefts = ref<string[]>([])
@@ -306,12 +299,12 @@ onBeforeUnmount(() => {
           </div>
 
           <div class="training-field__matching-column">
-            <p>活动图片</p>
+            <p>中文翻译</p>
             <button
-              v-for="right in matchingImageOrder"
+              v-for="right in matchingTranslationOrder"
               :key="right"
               type="button"
-              class="training-field__match-image"
+              class="training-field__match-translation"
               :class="{
                 'is-wrong': mismatchedPairRight === right,
                 'is-matched': currentQuestion.pairs?.some((pair) => pair.right === right && matchedPairLefts.includes(pair.left)),
@@ -320,7 +313,7 @@ onBeforeUnmount(() => {
               :aria-label="right"
               @click="selectPairRight(right)"
             >
-              <img :src="activityImagesByLabel[right]" :alt="right" />
+              <strong>{{ right }}</strong>
             </button>
           </div>
 
@@ -713,7 +706,7 @@ onBeforeUnmount(() => {
 
 .training-field__matching-column {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 10px;
   align-content: start;
 }
@@ -726,7 +719,7 @@ onBeforeUnmount(() => {
 }
 
 .training-field__match-word,
-.training-field__match-image {
+.training-field__match-translation {
   position: relative;
   overflow: hidden;
   cursor: pointer;
@@ -753,38 +746,39 @@ onBeforeUnmount(() => {
   color: #aaf5b2;
 }
 
-.training-field__match-image {
-  min-height: 132px;
-  padding: 8px;
+.training-field__match-translation {
+  display: grid;
+  min-height: 88px;
+  place-items: center;
+  padding: 12px;
+  color: @quest-text;
+  text-align: center;
 }
 
-.training-field__match-image img {
-  display: block;
-  width: 100%;
-  height: 114px;
-  object-fit: contain;
-  background: rgba(4, 10, 14, 0.62);
+.training-field__match-translation strong {
+  font-size: 19px;
+  line-height: 1.25;
 }
 
 .training-field__match-word.is-selected,
-.training-field__match-image:hover:not(:disabled) {
+.training-field__match-translation:hover:not(:disabled) {
   border-color: @quest-sheikah;
   box-shadow: 0 0 18px rgba(60, 211, 252, 0.28);
 }
 
 .training-field__match-word.is-matched,
-.training-field__match-image.is-matched {
+.training-field__match-translation.is-matched {
   border-color: #8ff38a;
   box-shadow: 0 0 18px rgba(143, 243, 138, 0.24);
 }
 
-.training-field__match-image.is-wrong {
+.training-field__match-translation.is-wrong {
   border-color: rgba(252, 196, 19, 0.82);
   box-shadow: 0 0 18px rgba(252, 196, 19, 0.2);
 }
 
 .training-field__match-word:disabled,
-.training-field__match-image:disabled {
+.training-field__match-translation:disabled {
   cursor: default;
   opacity: 0.75;
 }

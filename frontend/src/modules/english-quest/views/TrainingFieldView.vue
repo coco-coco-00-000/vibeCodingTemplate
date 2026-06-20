@@ -33,6 +33,18 @@ const activityImagesByEmoji: Record<string, string> = {
   '🎬': linkMovie,
   '🛍️': linkShopping,
 }
+const activityImagesByLabel: Record<string, string> = {
+  '泳池图': linkSwimming,
+  '游戏手柄图': linkVideoGames,
+  '篮球场图': linkBasketball,
+  '电影院图': linkMovie,
+  '商店图': linkShopping,
+}
+const matchingImageOrder = ['商店图', '电影院图', '泳池图', '游戏手柄图', '篮球场图']
+
+const selectedPairLeft = ref('')
+const matchedPairLefts = ref<string[]>([])
+const mismatchedPairRight = ref('')
 let audioTimer: ReturnType<typeof window.setTimeout> | undefined
 
 const currentLevel = computed(() => trainingLevels[levelIndex.value])
@@ -51,6 +63,9 @@ const canContinue = computed(() => {
     return tappedOptionIds.value.length === (currentQuestion.value.options?.length ?? 0)
   }
   if (currentLevel.value.kind === 'choice') return selectedCorrect.value
+  if (currentLevel.value.kind === 'matching') {
+    return matchedPairLefts.value.length === (currentQuestion.value.pairs?.length ?? 0)
+  }
   return revealed.value || isCurrentLevelComplete.value
 })
 
@@ -58,6 +73,9 @@ watch([levelIndex, questionIndex], () => {
   selectedOptionId.value = ''
   revealed.value = false
   tappedOptionIds.value = []
+  selectedPairLeft.value = ''
+  matchedPairLefts.value = []
+  mismatchedPairRight.value = ''
 })
 
 function selectOption(optionId: string) {
@@ -67,6 +85,29 @@ function selectOption(optionId: string) {
 
 function revealAnswer() {
   revealed.value = true
+}
+
+function selectPairLeft(left: string) {
+  if (matchedPairLefts.value.includes(left)) return
+  selectedPairLeft.value = left
+  mismatchedPairRight.value = ''
+}
+
+function selectPairRight(right: string) {
+  if (!selectedPairLeft.value) return
+
+  const selectedPair = currentQuestion.value.pairs?.find((pair) => pair.left === selectedPairLeft.value)
+  if (!selectedPair) return
+
+  mismatchedPairRight.value = ''
+
+  if (selectedPair.right === right) {
+    matchedPairLefts.value.push(selectedPair.left)
+    selectedPairLeft.value = ''
+    return
+  }
+
+  mismatchedPairRight.value = right
 }
 
 function playAudio(text: string, playingId = '') {
@@ -244,7 +285,54 @@ onBeforeUnmount(() => {
           </button>
         </div>
 
-        <div v-else-if="currentLevel.kind === 'matching' || currentLevel.kind === 'tagging'" class="training-field__pairs">
+        <div v-else-if="currentLevel.kind === 'matching'" class="training-field__matching">
+          <div class="training-field__matching-column">
+            <p>英文词块</p>
+            <button
+              v-for="pair in currentQuestion.pairs"
+              :key="pair.left"
+              type="button"
+              class="training-field__match-word"
+              :class="{
+                'is-selected': selectedPairLeft === pair.left,
+                'is-matched': matchedPairLefts.includes(pair.left),
+              }"
+              :disabled="matchedPairLefts.includes(pair.left)"
+              @click="selectPairLeft(pair.left)"
+            >
+              <strong>{{ pair.left }}</strong>
+              <small v-if="matchedPairLefts.includes(pair.left)">已连线</small>
+            </button>
+          </div>
+
+          <div class="training-field__matching-column">
+            <p>活动图片</p>
+            <button
+              v-for="right in matchingImageOrder"
+              :key="right"
+              type="button"
+              class="training-field__match-image"
+              :class="{
+                'is-wrong': mismatchedPairRight === right,
+                'is-matched': currentQuestion.pairs?.some((pair) => pair.right === right && matchedPairLefts.includes(pair.left)),
+              }"
+              :disabled="currentQuestion.pairs?.some((pair) => pair.right === right && matchedPairLefts.includes(pair.left))"
+              :aria-label="right"
+              @click="selectPairRight(right)"
+            >
+              <img :src="activityImagesByLabel[right]" :alt="right" />
+            </button>
+          </div>
+
+          <p class="training-field__matching-hint">
+            <template v-if="matchedPairLefts.length === currentQuestion.pairs?.length">5 组已经全部连线。</template>
+            <template v-else-if="mismatchedPairRight">这组没有连对，换一张图片试试。</template>
+            <template v-else-if="selectedPairLeft">现在选择右侧对应的活动图片。</template>
+            <template v-else>先点击一个英文词块，再选择右侧对应的活动图片。</template>
+          </p>
+        </div>
+
+        <div v-else-if="currentLevel.kind === 'tagging'" class="training-field__pairs">
           <button
             v-for="pair in currentQuestion.pairs"
             :key="pair.left"
@@ -615,6 +703,97 @@ onBeforeUnmount(() => {
 
 .training-field__image-option.is-wrong {
   border-color: rgba(252, 196, 19, 0.72);
+}
+
+.training-field__matching {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.78fr) minmax(0, 1.22fr);
+  gap: 20px;
+}
+
+.training-field__matching-column {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  align-content: start;
+}
+
+.training-field__matching-column > p,
+.training-field__matching-hint {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: rgba(233, 225, 209, 0.68);
+}
+
+.training-field__match-word,
+.training-field__match-image {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  border: 1px solid @quest-border;
+  background: rgba(7, 18, 25, 0.82);
+}
+
+.training-field__match-word {
+  display: grid;
+  min-height: 88px;
+  place-items: center;
+  padding: 12px;
+  color: @quest-text;
+  text-align: center;
+}
+
+.training-field__match-word strong {
+  font-size: 19px;
+  line-height: 1.25;
+}
+
+.training-field__match-word small {
+  margin-top: 6px;
+  color: #aaf5b2;
+}
+
+.training-field__match-image {
+  min-height: 132px;
+  padding: 8px;
+}
+
+.training-field__match-image img {
+  display: block;
+  width: 100%;
+  height: 114px;
+  object-fit: contain;
+  background: rgba(4, 10, 14, 0.62);
+}
+
+.training-field__match-word.is-selected,
+.training-field__match-image:hover:not(:disabled) {
+  border-color: @quest-sheikah;
+  box-shadow: 0 0 18px rgba(60, 211, 252, 0.28);
+}
+
+.training-field__match-word.is-matched,
+.training-field__match-image.is-matched {
+  border-color: #8ff38a;
+  box-shadow: 0 0 18px rgba(143, 243, 138, 0.24);
+}
+
+.training-field__match-image.is-wrong {
+  border-color: rgba(252, 196, 19, 0.82);
+  box-shadow: 0 0 18px rgba(252, 196, 19, 0.2);
+}
+
+.training-field__match-word:disabled,
+.training-field__match-image:disabled {
+  cursor: default;
+  opacity: 0.75;
+}
+
+.training-field__matching-hint {
+  margin-top: 2px;
+  padding: 11px 12px;
+  background: rgba(60, 211, 252, 0.06);
+  border: 1px solid rgba(60, 211, 252, 0.22);
 }
 
 .training-field__option b {

@@ -373,11 +373,11 @@ export const trainingLevels: TrainingLevel[] = [
     levelNumber: 3,
     title: '词块图片快连线',
     kind: 'matching',
-    screenCopy: '把英文词块拖到对应的活动图片上。',
+    screenCopy: '先选英文词块，再选择右侧对应的活动图片。',
     questions: [
       {
         id: 'pairs',
-        prompt: '连线演示版：点击查看每个词块的正确图片。',
+        prompt: '把左侧英文词块和右侧对应的活动图片连起来。',
         pairs: [
           { left: 'go swimming', right: '泳池图' },
           { left: 'play basketball', right: '篮球场图' },

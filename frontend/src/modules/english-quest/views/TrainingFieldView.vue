@@ -26,6 +26,13 @@ const activityImages: Record<string, string> = {
   'watch-a-movie': linkMovie,
   'go-shopping': linkShopping,
 }
+const activityImagesByEmoji: Record<string, string> = {
+  '🏊': linkSwimming,
+  '🎮': linkVideoGames,
+  '🏀': linkBasketball,
+  '🎬': linkMovie,
+  '🛍️': linkShopping,
+}
 let audioTimer: ReturnType<typeof window.setTimeout> | undefined
 
 const currentLevel = computed(() => trainingLevels[levelIndex.value])
@@ -62,7 +69,7 @@ function revealAnswer() {
   revealed.value = true
 }
 
-function tapCard(optionId: string, text: string) {
+function playAudio(text: string, playingId = '') {
   if ('speechSynthesis' in window) {
     window.speechSynthesis.cancel()
     const utterance = new SpeechSynthesisUtterance(text)
@@ -71,10 +78,14 @@ function tapCard(optionId: string, text: string) {
     window.speechSynthesis.speak(utterance)
   }
   if (audioTimer) window.clearTimeout(audioTimer)
-  audioPlayingId.value = optionId
+  audioPlayingId.value = playingId
   audioTimer = window.setTimeout(() => {
     audioPlayingId.value = ''
   }, 900)
+}
+
+function tapCard(optionId: string, text: string) {
+  playAudio(text, optionId)
   if (!tappedOptionIds.value.includes(optionId)) tappedOptionIds.value.push(optionId)
 }
 
@@ -156,10 +167,17 @@ onBeforeUnmount(() => {
     <template v-else>
       <HyrulePanel :title="currentQuestion.prompt" :kicker="currentLevel.missionId === 'mission-1' ? 'Mission 1' : 'Mission 2'" glow>
       <section class="training-field__question" :class="`training-field__question--${currentLevel.kind}`">
-        <div v-if="currentQuestion.audioText" class="training-field__audio">
+        <button
+          v-if="currentQuestion.audioText"
+          type="button"
+          class="training-field__audio"
+          :class="{ 'is-playing': audioPlayingId === `audio-${currentQuestion.id}` }"
+          :aria-label="`播放 ${currentQuestion.audioText}`"
+          @click="playAudio(currentQuestion.audioText, `audio-${currentQuestion.id}`)"
+        >
           <span aria-hidden="true">🔊</span>
-          <strong>{{ currentQuestion.audioText }}</strong>
-        </div>
+          <strong>点击播放英文</strong>
+        </button>
 
         <div v-if="currentQuestion.sentence" class="training-field__sentence">
           {{ currentQuestion.sentence }}
@@ -185,6 +203,25 @@ onBeforeUnmount(() => {
             <strong>{{ option.label }}</strong>
             <small>{{ option.imageLabel }}</small>
             <em v-if="tappedOptionIds.includes(option.id)">已点亮</em>
+          </button>
+        </div>
+
+        <div v-else-if="currentLevel.id === 'level-2-word-audio-image'" class="training-field__image-options">
+          <button
+            v-for="option in currentQuestion.options"
+            :key="option.id"
+            type="button"
+            class="training-field__image-option"
+            :class="{
+              'is-selected': selectedOptionId === option.id,
+              'is-correct': revealed && option.id === currentQuestion.correctOptionId,
+              'is-wrong': selectedOptionId === option.id && selectedOptionId !== currentQuestion.correctOptionId,
+            }"
+            :aria-label="option.label"
+            @click="selectOption(option.id)"
+          >
+            <img :src="activityImagesByEmoji[option.emoji ?? '']" :alt="option.label" />
+            <b>{{ option.id }}</b>
           </button>
         </div>
 
@@ -424,6 +461,21 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   gap: 10px;
+  width: fit-content;
+  padding: 10px 14px;
+  color: @quest-text;
+  cursor: pointer;
+  background: rgba(60, 211, 252, 0.1);
+  border: 1px solid rgba(60, 211, 252, 0.5);
+}
+
+.training-field__audio span {
+  font-size: 22px;
+}
+
+.training-field__audio.is-playing {
+  color: #bff6ff;
+  box-shadow: 0 0 18px rgba(60, 211, 252, 0.42);
 }
 
 .training-field__activity-grid {
@@ -511,6 +563,58 @@ onBeforeUnmount(() => {
   grid-template-columns: auto auto minmax(0, 1fr);
   align-items: center;
   gap: 8px;
+}
+
+.training-field__image-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.training-field__image-option {
+  position: relative;
+  display: grid;
+  min-height: 360px;
+  place-items: center;
+  padding: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  background: rgba(7, 18, 25, 0.82);
+  border: 1px solid @quest-border;
+}
+
+.training-field__image-option img {
+  width: 100%;
+  height: 316px;
+  object-fit: contain;
+  background: rgba(4, 10, 14, 0.62);
+}
+
+.training-field__image-option b {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  color: @quest-text;
+  background: rgba(7, 18, 25, 0.8);
+  border: 1px solid rgba(233, 225, 209, 0.34);
+}
+
+.training-field__image-option.is-selected {
+  border-color: @quest-sheikah;
+  box-shadow: 0 0 18px rgba(60, 211, 252, 0.26);
+}
+
+.training-field__image-option.is-correct {
+  border-color: #8ff38a;
+  box-shadow: 0 0 22px rgba(143, 243, 138, 0.3);
+}
+
+.training-field__image-option.is-wrong {
+  border-color: rgba(252, 196, 19, 0.72);
 }
 
 .training-field__option b {

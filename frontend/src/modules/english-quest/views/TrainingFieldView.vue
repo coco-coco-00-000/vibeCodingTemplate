@@ -4,7 +4,11 @@ import { RouterLink } from 'vue-router'
 import HyrulePanel from '../components/HyrulePanel.vue'
 import MasteryMeter from '../components/MasteryMeter.vue'
 import { useQuestProgress } from '../composables/useQuestProgress'
-import activitySprite from '../assets/link-activity-sprite.png'
+import linkBasketball from '../assets/link-basketball.png'
+import linkMovie from '../assets/link-movie.png'
+import linkShopping from '../assets/link-shopping.png'
+import linkSwimming from '../assets/link-swimming.png'
+import linkVideoGames from '../assets/link-video-games.png'
 
 const { completedTrainingStepIds, mastery, miniGames, store, trainingLevels, trainingProgress } = useQuestProgress()
 
@@ -15,12 +19,12 @@ const revealed = ref(false)
 const tappedOptionIds = ref<string[]>([])
 const learningStarted = ref(false)
 const audioPlayingId = ref('')
-const activitySpriteIndexes: Record<string, number> = {
-  'go-swimming': 0,
-  'play-video-games': 1,
-  'play-basketball': 2,
-  'watch-a-movie': 3,
-  'go-shopping': 4,
+const activityImages: Record<string, string> = {
+  'go-swimming': linkSwimming,
+  'play-video-games': linkVideoGames,
+  'play-basketball': linkBasketball,
+  'watch-a-movie': linkMovie,
+  'go-shopping': linkShopping,
 }
 let audioTimer: ReturnType<typeof window.setTimeout> | undefined
 
@@ -173,13 +177,10 @@ onBeforeUnmount(() => {
             }"
             @click="tapCard(option.id, option.label)"
           >
-            <span
+            <img
               class="training-field__activity-image"
-              :style="{
-                backgroundImage: `url(${activitySprite})`,
-                '--activity-image-index': activitySpriteIndexes[option.id] ?? 0,
-              }"
-              aria-hidden="true"
+              :src="activityImages[option.id]"
+              :alt="option.imageLabel"
             />
             <strong>{{ option.label }}</strong>
             <small>{{ option.imageLabel }}</small>
@@ -427,7 +428,7 @@ onBeforeUnmount(() => {
 
 .training-field__activity-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 14px;
 }
 
@@ -451,7 +452,7 @@ onBeforeUnmount(() => {
 .training-field__activity-card {
   display: grid;
   grid-template-rows: auto auto auto auto;
-  min-height: 340px;
+  min-height: 420px;
   align-content: start;
   gap: 7px;
   padding: 0 0 14px;
@@ -461,11 +462,11 @@ onBeforeUnmount(() => {
 
 .training-field__activity-image {
   width: 100%;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 3 / 4;
   display: block;
-  background-repeat: no-repeat;
-  background-position: calc(var(--activity-image-index) * 25%) center;
-  background-size: 500% auto;
+  object-fit: contain;
+  object-position: center;
+  background: rgba(7, 18, 25, 0.78);
   border-bottom: 1px solid rgba(60, 211, 252, 0.24);
   filter: brightness(0.72) saturate(0.8);
   transition: filter 0.22s ease, transform 0.22s ease;
@@ -534,6 +535,10 @@ onBeforeUnmount(() => {
 
 .training-field__activity-card.is-playing {
   box-shadow: 0 0 0 2px rgba(60, 211, 252, 0.9), 0 0 28px rgba(60, 211, 252, 0.42);
+}
+
+@media (max-width: 1100px) {
+  .training-field__activity-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
 .training-field__option.is-wrong {

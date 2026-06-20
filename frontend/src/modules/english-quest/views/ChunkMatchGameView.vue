@@ -19,8 +19,8 @@ type MatchTile = {
   vanishing: boolean
 }
 
-const tileWidth = 74
-const tileHeight = 90
+const tileWidth = 116
+const tileHeight = 118
 const store = useEnglishQuestStore()
 const game = miniGames.find((item) => item.id === 'chunk-match')
 const score = ref(0)
@@ -243,7 +243,7 @@ onBeforeUnmount(() => {
 }
 
 .chunk-match__header {
-  width: min(800px, 100%);
+  width: min(930px, 100%);
   min-height: 70px;
   display: flex;
   align-items: center;
@@ -282,7 +282,7 @@ onBeforeUnmount(() => {
 }
 
 .chunk-match__intro {
-  width: min(800px, 100%);
+  width: min(930px, 100%);
   display: grid;
   gap: 7px;
 }
@@ -292,7 +292,7 @@ onBeforeUnmount(() => {
 }
 
 .chunk-match__message {
-  width: min(800px, 100%);
+  width: min(930px, 100%);
   min-height: 48px;
   margin: 0;
   padding: 13px 18px;
@@ -307,8 +307,8 @@ onBeforeUnmount(() => {
 
 .chunk-match__board {
   position: relative;
-  width: 800px;
-  height: 600px;
+  width: 930px;
+  height: 720px;
   overflow: hidden;
   background:
     linear-gradient(rgba(60, 211, 252, 0.05) 1px, transparent 1px),
@@ -321,11 +321,11 @@ onBeforeUnmount(() => {
 
 .chunk-match__tile {
   position: absolute;
-  width: 74px;
-  height: 90px;
+  width: 116px;
+  height: 118px;
   display: grid;
   place-items: center;
-  padding: 12px 5px 10px;
+  padding: 17px 8px 15px;
   color: @quest-text;
   cursor: pointer;
   background: #26312c;
@@ -341,12 +341,11 @@ onBeforeUnmount(() => {
 
 .chunk-match__tile strong {
   width: 100%;
-  overflow: hidden;
-  font-size: 12px;
-  line-height: 1.15;
+  font-size: 14px;
+  line-height: 1.25;
   text-align: center;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 .chunk-match__tile-index,

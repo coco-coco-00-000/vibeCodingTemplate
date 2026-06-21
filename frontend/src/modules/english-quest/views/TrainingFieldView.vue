@@ -38,7 +38,12 @@ const activityImagesByEmoji: Record<string, string> = {
   '🎬': linkMovie,
   '🛍️': linkShopping,
 }
-const transferActivityImages: Record<string, string> = {
+const questionImages: Record<string, string> = {
+  'go-swimming': linkSwimming,
+  'play-video-games': linkVideoGames,
+  'play-basketball': linkBasketball,
+  'watch-a-movie': linkMovie,
+  'go-shopping': linkShopping,
   'v2-swimming': linkV2Swimming,
   'v2-basketball': linkV2Basketball,
   'v2-movie': linkV2Movie,
@@ -50,7 +55,9 @@ const matchingTranslationOrder = ['去购物', '看电影', '去游泳', '打电
 const selectedPairLeft = ref('')
 const matchedPairLefts = ref<string[]>([])
 const mismatchedPairRight = ref('')
+const speakingStatus = ref<'idle' | 'recording' | 'result'>('idle')
 let audioTimer: number | undefined
+let speakingTimer: number | undefined
 
 const currentLevel = computed(() => trainingLevels[levelIndex.value])
 const currentQuestion = computed(() => currentLevel.value.questions[questionIndex.value])
@@ -68,6 +75,7 @@ const canContinue = computed(() => {
     return tappedOptionIds.value.length === (currentQuestion.value.options?.length ?? 0)
   }
   if (currentLevel.value.kind === 'choice') return selectedCorrect.value
+  if (currentLevel.value.kind === 'speaking') return speakingStatus.value === 'result'
   if (currentLevel.value.kind === 'matching') {
     return matchedPairLefts.value.length === (currentQuestion.value.pairs?.length ?? 0)
   }
@@ -81,6 +89,8 @@ watch([levelIndex, questionIndex], () => {
   selectedPairLeft.value = ''
   matchedPairLefts.value = []
   mismatchedPairRight.value = ''
+  speakingStatus.value = 'idle'
+  if (speakingTimer) window.clearTimeout(speakingTimer)
 })
 
 function selectOption(optionId: string) {
@@ -90,6 +100,16 @@ function selectOption(optionId: string) {
 
 function revealAnswer() {
   revealed.value = true
+}
+
+function startSpeaking() {
+  if (speakingStatus.value === 'recording') return
+  if (speakingTimer) window.clearTimeout(speakingTimer)
+  speakingStatus.value = 'recording'
+  speakingTimer = window.setTimeout(() => {
+    speakingStatus.value = 'result'
+    revealed.value = true
+  }, 1400)
 }
 
 function selectPairLeft(left: string) {
@@ -158,6 +178,7 @@ function startLearning() {
 
 onBeforeUnmount(() => {
   if (audioTimer) window.clearTimeout(audioTimer)
+  if (speakingTimer) window.clearTimeout(speakingTimer)
   if ('speechSynthesis' in window) window.speechSynthesis.cancel()
 })
 </script>
@@ -232,7 +253,7 @@ onBeforeUnmount(() => {
         <img
           v-if="currentQuestion.imageId"
           class="training-field__transfer-image"
-          :src="transferActivityImages[currentQuestion.imageId]"
+          :src="questionImages[currentQuestion.imageId]"
           :alt="'活动场景图'"
         />
 
@@ -276,6 +297,24 @@ onBeforeUnmount(() => {
             <img :src="activityImagesByEmoji[option.emoji ?? '']" :alt="option.label" />
             <b>{{ option.id }}</b>
           </button>
+        </div>
+
+        <div v-else-if="currentLevel.kind === 'speaking'" class="training-field__speaking">
+          <button
+            type="button"
+            class="training-field__record-button"
+            :class="{ 'is-recording': speakingStatus === 'recording', 'is-finished': speakingStatus === 'result' }"
+            :disabled="speakingStatus === 'recording'"
+            @click="startSpeaking"
+          >
+            <span aria-hidden="true">●</span>
+            <strong>{{ speakingStatus === 'recording' ? '正在收音...' : speakingStatus === 'result' ? '重新录音' : '录音' }}</strong>
+          </button>
+          <p v-if="speakingStatus === 'recording'" class="training-field__speaking-status">听一听你的英文表达...</p>
+          <p v-else-if="speakingStatus === 'result'" class="training-field__speaking-result">
+            识别结果：<strong>{{ currentQuestion.spokenAnswer }}</strong>。说得很好！
+          </p>
+          <p v-else class="training-field__speaking-status">点击录音，开口说出你看到的活动。</p>
         </div>
 
         <div v-else-if="currentLevel.kind === 'choice'" class="training-field__options">
@@ -725,6 +764,64 @@ onBeforeUnmount(() => {
 
 .training-field__image-option.is-wrong {
   border-color: rgba(252, 196, 19, 0.72);
+}
+
+.training-field__speaking {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  text-align: center;
+}
+
+.training-field__record-button {
+  display: inline-flex;
+  min-width: 160px;
+  min-height: 54px;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 20px;
+  color: @quest-text;
+  font-size: 17px;
+  background: rgba(60, 211, 252, 0.14);
+  border: 1px solid rgba(60, 211, 252, 0.58);
+  cursor: pointer;
+}
+
+.training-field__record-button span {
+  color: #ff7368;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.training-field__record-button.is-recording {
+  color: #fff2cf;
+  border-color: @quest-gold;
+  box-shadow: 0 0 20px rgba(252, 196, 19, 0.28);
+}
+
+.training-field__record-button.is-recording span {
+  animation: recording-pulse 0.8s ease-in-out infinite alternate;
+}
+
+.training-field__record-button.is-finished {
+  border-color: #8ff38a;
+}
+
+.training-field__speaking-status,
+.training-field__speaking-result {
+  margin: 0;
+  color: @quest-muted;
+}
+
+.training-field__speaking-result {
+  color: #bff6ff;
+}
+
+@keyframes recording-pulse {
+  from { transform: scale(0.76); opacity: 0.55; }
+  to { transform: scale(1.12); opacity: 1; }
 }
 
 .training-field__matching {

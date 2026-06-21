@@ -51,6 +51,7 @@ export type TrainingLevelKind =
   | 'activity-cards'
   | 'choice'
   | 'matching'
+  | 'speaking'
   | 'tagging'
   | 'sentence-build'
   | 'repeat'
@@ -75,6 +76,7 @@ export interface TrainingQuestion {
   audioText?: string
   imageId?: string
   imageLabel?: string
+  spokenAnswer?: string
   sentence?: string
   options?: TrainingOption[]
   correctOptionId?: string

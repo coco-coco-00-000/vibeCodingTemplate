@@ -9,6 +9,11 @@ import linkMovie from '../assets/link-movie.png'
 import linkShopping from '../assets/link-shopping.png'
 import linkSwimming from '../assets/link-swimming.png'
 import linkVideoGames from '../assets/link-video-games.png'
+import linkV2Basketball from '../assets/link-v2-basketball.png'
+import linkV2Movie from '../assets/link-v2-movie.png'
+import linkV2Shopping from '../assets/link-v2-shopping.png'
+import linkV2Swimming from '../assets/link-v2-swimming.png'
+import linkV2VideoGames from '../assets/link-v2-video-games.png'
 
 const { completedTrainingStepIds, mastery, miniGames, store, trainingLevels, trainingProgress } = useQuestProgress()
 
@@ -33,12 +38,19 @@ const activityImagesByEmoji: Record<string, string> = {
   '🎬': linkMovie,
   '🛍️': linkShopping,
 }
+const transferActivityImages: Record<string, string> = {
+  'v2-swimming': linkV2Swimming,
+  'v2-basketball': linkV2Basketball,
+  'v2-movie': linkV2Movie,
+  'v2-shopping': linkV2Shopping,
+  'v2-video-games': linkV2VideoGames,
+}
 const matchingTranslationOrder = ['去购物', '看电影', '去游泳', '打电子游戏', '打篮球']
 
 const selectedPairLeft = ref('')
 const matchedPairLefts = ref<string[]>([])
 const mismatchedPairRight = ref('')
-let audioTimer: ReturnType<typeof window.setTimeout> | undefined
+let audioTimer: number | undefined
 
 const currentLevel = computed(() => trainingLevels[levelIndex.value])
 const currentQuestion = computed(() => currentLevel.value.questions[questionIndex.value])
@@ -216,6 +228,13 @@ onBeforeUnmount(() => {
         <div v-if="currentQuestion.sentence" class="training-field__sentence">
           {{ currentQuestion.sentence }}
         </div>
+
+        <img
+          v-if="currentQuestion.imageId"
+          class="training-field__transfer-image"
+          :src="transferActivityImages[currentQuestion.imageId]"
+          :alt="'活动场景图'"
+        />
 
         <div v-if="currentLevel.kind === 'activity-cards'" class="training-field__activity-grid">
           <button
@@ -557,6 +576,16 @@ onBeforeUnmount(() => {
 .training-field__audio.is-playing {
   color: #bff6ff;
   box-shadow: 0 0 18px rgba(60, 211, 252, 0.42);
+}
+
+.training-field__transfer-image {
+  display: block;
+  width: min(100%, 520px);
+  max-height: 460px;
+  margin: 0 auto;
+  object-fit: contain;
+  background: rgba(4, 10, 14, 0.62);
+  border: 1px solid rgba(60, 211, 252, 0.42);
 }
 
 .training-field__activity-grid {

@@ -73,6 +73,7 @@ export interface TrainingQuestion {
   id: string
   prompt: string
   audioText?: string
+  imageId?: string
   imageLabel?: string
   sentence?: string
   options?: TrainingOption[]

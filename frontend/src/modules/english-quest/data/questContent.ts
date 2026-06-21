@@ -401,7 +401,8 @@ export const trainingLevels: TrainingLevel[] = [
     questions: [
       {
         id: 'l4-q1',
-        prompt: '另一个泳池 / 游泳圈',
+        prompt: '看图，选择正确的英文活动。',
+        imageId: 'v2-swimming',
         options: [
           { id: 'A', label: 'go swimming' },
           { id: 'B', label: 'go shopping' },
@@ -411,7 +412,8 @@ export const trainingLevels: TrainingLevel[] = [
       },
       {
         id: 'l4-q2',
-        prompt: '户外篮球架',
+        prompt: '看图，选择正确的英文活动。',
+        imageId: 'v2-basketball',
         options: [
           { id: 'A', label: 'play video games' },
           { id: 'B', label: 'play basketball' },
@@ -421,7 +423,8 @@ export const trainingLevels: TrainingLevel[] = [
       },
       {
         id: 'l4-q3',
-        prompt: '爆米花和电影票',
+        prompt: '看图，选择正确的英文活动。',
+        imageId: 'v2-movie',
         options: [
           { id: 'A', label: 'watch a movie' },
           { id: 'B', label: 'play basketball' },
@@ -431,7 +434,8 @@ export const trainingLevels: TrainingLevel[] = [
       },
       {
         id: 'l4-q4',
-        prompt: '商场橱窗',
+        prompt: '看图，选择正确的英文活动。',
+        imageId: 'v2-shopping',
         options: [
           { id: 'A', label: 'go shopping' },
           { id: 'B', label: 'go swimming' },
@@ -441,7 +445,8 @@ export const trainingLevels: TrainingLevel[] = [
       },
       {
         id: 'l4-q5',
-        prompt: '电视屏幕和手柄',
+        prompt: '看图，选择正确的英文活动。',
+        imageId: 'v2-video-games',
         options: [
           { id: 'A', label: 'watch a movie' },
           { id: 'B', label: 'play video games' },

@@ -324,7 +324,7 @@ onBeforeUnmount(() => {
       <HyrulePanel :title="currentQuestion.prompt" :kicker="currentLevel.missionId === 'mission-1' ? 'Mission 1' : 'Mission 2'" glow>
       <section class="training-field__question" :class="`training-field__question--${currentLevel.kind}`">
         <button
-          v-if="currentQuestion.audioText"
+          v-if="currentQuestion.audioText && currentLevel.id !== 'level-14-response-match'"
           type="button"
           class="training-field__audio"
           :class="{ 'is-playing': audioPlayingId === `audio-${currentQuestion.id}` }"
@@ -336,7 +336,7 @@ onBeforeUnmount(() => {
           <strong v-if="currentLevel.kind === 'repeat'" class="training-field__audio-sentence">{{ currentQuestion.sentence }}</strong>
         </button>
 
-        <div v-if="currentQuestion.sentence && currentLevel.id !== 'level-7-invite-function' && currentLevel.id !== 'level-13-response-explore' && currentLevel.kind !== 'repeat'" class="training-field__sentence">
+        <div v-if="currentQuestion.sentence && currentLevel.id !== 'level-7-invite-function' && currentLevel.id !== 'level-13-response-explore' && currentLevel.id !== 'level-14-response-match' && currentLevel.kind !== 'repeat'" class="training-field__sentence">
           {{ currentQuestion.sentence }}
         </div>
 
@@ -444,6 +444,37 @@ onBeforeUnmount(() => {
             识别结果：<strong>{{ currentQuestion.spokenAnswer }}</strong>。说得很好！
           </p>
           <p v-else class="training-field__speaking-status">点击录音，开口说出你看到的活动。</p>
+        </div>
+
+        <div v-else-if="currentLevel.id === 'level-14-response-match'" class="training-field__response-listen">
+          <button
+            type="button"
+            class="training-field__listen-button"
+            :class="{ 'is-playing': audioPlayingId === `response-listen-${currentQuestion.id}` }"
+            @click="playFemaleAudio(currentQuestion.audioText ?? '', `response-listen-${currentQuestion.id}`)"
+          >
+            <span aria-hidden="true">🔊</span>
+            <strong>播放回应</strong>
+          </button>
+          <div class="training-field__reaction-grid">
+            <button
+              v-for="option in currentQuestion.options"
+              :key="option.id"
+              type="button"
+              class="training-field__reaction-card"
+              :class="{
+                'is-selected': selectedOptionId === option.id,
+                'is-correct': revealed && option.id === currentQuestion.correctOptionId,
+                'is-wrong': selectedOptionId === option.id && selectedOptionId !== currentQuestion.correctOptionId,
+                'is-sad': option.id === 'refuse',
+              }"
+              @click="selectOption(option.id)"
+            >
+              <img :src="linkSwimming" alt="林克" />
+              <strong>{{ option.label }}</strong>
+            </button>
+          </div>
+          <div v-if="revealed" class="training-field__response-result">{{ currentQuestion.sentence }}</div>
         </div>
 
         <div v-else-if="currentLevel.kind === 'choice'" class="training-field__options">
@@ -1102,6 +1133,95 @@ onBeforeUnmount(() => {
 
 .training-field__image-option.is-wrong {
   border-color: rgba(252, 196, 19, 0.72);
+}
+
+.training-field__response-listen {
+  display: grid;
+  justify-items: center;
+  gap: 18px;
+  padding: 12px 0;
+}
+
+.training-field__listen-button {
+  display: inline-flex;
+  min-width: 180px;
+  min-height: 54px;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 20px;
+  color: @quest-text;
+  font-size: 17px;
+  cursor: pointer;
+  background: rgba(60, 211, 252, 0.14);
+  border: 1px solid rgba(60, 211, 252, 0.58);
+}
+
+.training-field__listen-button span {
+  font-size: 22px;
+}
+
+.training-field__listen-button.is-playing {
+  color: #bff6ff;
+  box-shadow: 0 0 20px rgba(60, 211, 252, 0.34);
+}
+
+.training-field__reaction-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+  gap: 18px;
+  width: min(100%, 650px);
+}
+
+.training-field__reaction-card {
+  display: grid;
+  min-height: 220px;
+  place-items: center;
+  gap: 12px;
+  padding: 16px;
+  color: @quest-text;
+  cursor: pointer;
+  background: rgba(7, 18, 25, 0.82);
+  border: 1px solid @quest-border;
+}
+
+.training-field__reaction-card img {
+  width: 124px;
+  height: 124px;
+  object-fit: cover;
+  object-position: center 28%;
+  border: 1px solid rgba(60, 211, 252, 0.42);
+  border-radius: 4px;
+}
+
+.training-field__reaction-card.is-sad img {
+  filter: grayscale(0.78) brightness(0.84);
+}
+
+.training-field__reaction-card strong {
+  font-size: 19px;
+}
+
+.training-field__reaction-card.is-selected {
+  border-color: @quest-sheikah;
+}
+
+.training-field__reaction-card.is-correct {
+  border-color: #8ff38a;
+  box-shadow: 0 0 22px rgba(143, 243, 138, 0.3);
+}
+
+.training-field__reaction-card.is-wrong {
+  border-color: rgba(252, 196, 19, 0.72);
+}
+
+.training-field__response-result {
+  padding: 12px 16px;
+  color: #bff6ff;
+  font-size: 19px;
+  font-weight: 700;
+  background: rgba(60, 211, 252, 0.1);
+  border: 1px solid rgba(60, 211, 252, 0.4);
 }
 
 .training-field__speaking {

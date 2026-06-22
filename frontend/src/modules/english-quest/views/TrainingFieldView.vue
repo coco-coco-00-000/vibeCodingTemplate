@@ -68,6 +68,8 @@ const heardRefusedResponse = ref(false)
 const closingRefusal = ref(false)
 const heardAcceptClosing = ref(false)
 const heardRefuseClosing = ref(false)
+const relayPhase = ref<'reaction' | 'closing'>('reaction')
+const relayClosingSelected = ref('')
 const speakingStatus = ref<'idle' | 'recording' | 'result'>('idle')
 let audioTimer: number | undefined
 let speakingTimer: number | undefined
@@ -104,7 +106,7 @@ const canContinue = computed(() => {
   if (currentLevel.value.id === 'level-13-response-explore') {
     return responseMode.value === 'refuse' && heardRefusedResponse.value
   }
-  if (currentLevel.value.id === 'level-15-closing') return closingRefusal.value && heardRefuseClosing.value
+  if (currentLevel.value.id === 'level-15-closing') return relayClosingSelected.value === currentQuestion.value.closingAnswer
   if (currentLevel.value.kind === 'speaking') return speakingStatus.value === 'result'
   if (currentLevel.value.kind === 'repeat') return speakingStatus.value === 'result'
   if (currentLevel.value.kind === 'matching') {
@@ -130,6 +132,8 @@ watch([levelIndex, questionIndex], () => {
   closingRefusal.value = false
   heardAcceptClosing.value = false
   heardRefuseClosing.value = false
+  relayPhase.value = 'reaction'
+  relayClosingSelected.value = ''
   speakingStatus.value = 'idle'
   if (speakingTimer) window.clearTimeout(speakingTimer)
 })
@@ -242,19 +246,14 @@ function showRefusedResponse() {
   responseMode.value = 'refuse'
 }
 
-function playClosingMessage() {
-  const message = closingRefusal.value ? 'No problem.' : 'Great! See you then.'
-  playAudio(message, `closing-${closingRefusal.value ? 'refuse' : 'accept'}`)
-  if (closingRefusal.value) {
-    heardRefuseClosing.value = true
-    revealAnswer()
-    return
-  }
-  heardAcceptClosing.value = true
+function selectRelayReaction(reaction: 'accept' | 'refuse') {
+  selectedOptionId.value = reaction
+  if (reaction === currentQuestion.value.correctOptionId) relayPhase.value = 'closing'
 }
 
-function showClosingRefusal() {
-  closingRefusal.value = true
+function selectRelayClosing(message: string) {
+  relayClosingSelected.value = message
+  if (message === currentQuestion.value.closingAnswer) playAudio(message, `relay-close-${currentQuestion.value.id}`)
 }
 
 function addSentenceBlock(block: string) {
@@ -712,19 +711,18 @@ onBeforeUnmount(() => {
           </div>
           <div class="training-field__response-row training-field__response-row--princess">
             <img :src="princessSelfie" alt="公主" class="training-field__response-avatar training-field__response-avatar--princess" />
-            <div class="training-field__response-bubble training-field__response-bubble--princess">{{ closingRefusal ? "Sorry, I can't." : 'Sounds good.' }}</div>
+            <button type="button" class="training-field__response-bubble training-field__response-bubble--princess" @click="playFemaleAudio(currentQuestion.audioText ?? '', `relay-${currentQuestion.id}`)">播放公主回应</button>
           </div>
-          <div class="training-field__response-row training-field__response-row--link training-field__response-sticker-row">
-            <img :src="closingRefusal ? linkReactionSad : linkReactionHappy" alt="林克表情" class="training-field__response-sticker-image" />
-            <img :src="linkSwimming" alt="林克" class="training-field__response-avatar training-field__response-avatar--link" />
+          <div v-if="relayPhase === 'reaction'" class="training-field__relay-reactions">
+            <button type="button" :class="{ 'is-wrong': selectedOptionId === 'accept' && currentQuestion.correctOptionId !== 'accept' }" @click="selectRelayReaction('accept')"><img :src="linkReactionHappy" alt="林克开心" /></button>
+            <button type="button" :class="{ 'is-wrong': selectedOptionId === 'refuse' && currentQuestion.correctOptionId !== 'refuse' }" @click="selectRelayReaction('refuse')"><img :src="linkReactionSad" alt="林克难过" /></button>
           </div>
-          <button
-            type="button"
-            class="training-field__response-bubble training-field__response-bubble--link training-field__closing-message"
-            :class="{ 'is-playing': audioPlayingId === `closing-${closingRefusal ? 'refuse' : 'accept'}` }"
-            @click="playClosingMessage"
-          >{{ closingRefusal ? 'No problem.' : 'Great! See you then.' }}</button>
-          <button v-if="!closingRefusal && heardAcceptClosing" type="button" class="training-field__response-prompt" @click="showClosingRefusal">如果公主拒绝邀约，你可以说…</button>
+          <template v-else>
+            <div class="training-field__response-row training-field__response-row--link training-field__response-sticker-row"><img :src="currentQuestion.correctOptionId === 'accept' ? linkReactionHappy : linkReactionSad" alt="林克表情" class="training-field__response-sticker-image" /><img :src="linkSwimming" alt="林克" class="training-field__response-avatar training-field__response-avatar--link" /></div>
+            <div class="training-field__relay-closings">
+              <button v-for="message in ['Great! See you then.', 'No problem.']" :key="message" type="button" :class="{ 'is-correct': relayClosingSelected === message && message === currentQuestion.closingAnswer, 'is-wrong': relayClosingSelected === message && message !== currentQuestion.closingAnswer }" @click="selectRelayClosing(message)">{{ message }}</button>
+            </div>
+          </template>
         </div>
 
         <div v-else-if="currentLevel.kind === 'chat-explore'" class="training-field__chat">
@@ -1765,6 +1763,37 @@ onBeforeUnmount(() => {
   background: #b3f48d;
   box-shadow: 0 0 0 2px rgba(103, 173, 78, 0.34);
 }
+
+.training-field__relay-reactions,
+.training-field__relay-closings {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+}
+
+.training-field__relay-reactions button,
+.training-field__relay-closings button {
+  padding: 8px;
+  cursor: pointer;
+  background: #fff;
+  border: 1px solid #d6d6d6;
+}
+
+.training-field__relay-reactions img {
+  display: block;
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+}
+
+.training-field__relay-closings button {
+  color: #1f2b1d;
+  font-size: 16px;
+}
+
+.training-field__relay-reactions button.is-wrong,
+.training-field__relay-closings button.is-wrong { border-color: #e3a23e; }
+.training-field__relay-closings button.is-correct { background: #95ec69; border-color: #70b35e; }
 
 .training-field__response-sticker {
   display: grid;

@@ -80,6 +80,7 @@ export interface TrainingQuestion {
   sentenceFrame?: string
   hintText?: string
   calendarDay?: number
+  closingAnswer?: string
   sentence?: string
   options?: TrainingOption[]
   correctOptionId?: string

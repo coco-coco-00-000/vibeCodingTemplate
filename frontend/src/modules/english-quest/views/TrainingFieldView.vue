@@ -14,6 +14,7 @@ import linkV2Movie from '../assets/link-v2-movie.png'
 import linkV2Shopping from '../assets/link-v2-shopping.png'
 import linkV2Swimming from '../assets/link-v2-swimming.png'
 import linkV2VideoGames from '../assets/link-v2-video-games.png'
+import princessSelfie from '../assets/princess-selfie.png'
 
 const { completedTrainingStepIds, mastery, miniGames, store, trainingLevels, trainingProgress } = useQuestProgress()
 
@@ -617,7 +618,7 @@ onBeforeUnmount(() => {
             <img :src="linkSwimming" alt="林克" class="training-field__response-avatar training-field__response-avatar--link" />
           </div>
           <div class="training-field__response-row training-field__response-row--princess">
-            <img :src="linkV2Swimming" alt="公主" class="training-field__response-avatar training-field__response-avatar--princess" />
+            <img :src="princessSelfie" alt="公主" class="training-field__response-avatar training-field__response-avatar--princess" />
             <button
               type="button"
               class="training-field__response-bubble training-field__response-bubble--princess"
@@ -625,15 +626,18 @@ onBeforeUnmount(() => {
               @click="playFriendResponse"
             >
               {{ responseMode === 'accept' ? 'Sounds good.' : "Sorry, I can't." }}
+              <small v-if="responseMode === 'accept' && heardAcceptedResponse">听上去不错。</small>
+              <small v-else-if="responseMode === 'refuse' && heardRefusedResponse">不好意思，我不能去。</small>
             </button>
           </div>
           <div
             v-if="(responseMode === 'accept' && heardAcceptedResponse) || (responseMode === 'refuse' && heardRefusedResponse)"
-            class="training-field__response-sticker"
-            :class="{ 'is-sad': responseMode === 'refuse' }"
+            class="training-field__response-row training-field__response-row--link training-field__response-sticker-row"
           >
-            <img :src="linkSwimming" alt="林克表情" />
-            <strong>{{ responseMode === 'accept' ? 'Yay! ヽ(≧▽≦)ﾉ' : 'Oh no... (╥﹏╥)' }}</strong>
+            <div class="training-field__response-sticker">
+              <strong>{{ responseMode === 'accept' ? 'Yay! ヽ(≧▽≦)ﾉ' : 'Oh no... (╥﹏╥)' }}</strong>
+            </div>
+            <img :src="linkSwimming" alt="林克表情" class="training-field__response-avatar training-field__response-avatar--link" />
           </div>
           <button
             v-if="responseMode === 'accept' && heardAcceptedResponse"
@@ -1535,7 +1539,7 @@ onBeforeUnmount(() => {
 }
 
 .training-field__response-avatar--princess {
-  object-position: 78% center;
+  object-position: center;
 }
 
 .training-field__response-bubble {
@@ -1554,6 +1558,8 @@ onBeforeUnmount(() => {
 }
 
 .training-field__response-bubble--princess {
+  display: grid;
+  gap: 4px;
   color: #202020;
   cursor: pointer;
   background: #fff;
@@ -1565,32 +1571,24 @@ onBeforeUnmount(() => {
   box-shadow: 0 0 0 2px rgba(103, 173, 78, 0.3);
 }
 
+.training-field__response-bubble--princess small {
+  color: #9a9a9a;
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.training-field__response-sticker-row {
+  padding-top: 0;
+}
+
 .training-field__response-sticker {
-  display: flex;
+  display: grid;
   width: fit-content;
   align-items: center;
-  gap: 9px;
-  margin-left: auto;
-  padding: 7px 11px 7px 7px;
-  color: #326d24;
-  background: #fff8cb;
-  border: 1px solid rgba(216, 176, 45, 0.56);
-  border-radius: 4px;
-}
-
-.training-field__response-sticker.is-sad {
-  margin-right: auto;
-  margin-left: 0;
-  color: #52657a;
-  background: #e8eff4;
-  border-color: rgba(82, 101, 122, 0.36);
-}
-
-.training-field__response-sticker img {
-  width: 46px;
-  height: 46px;
-  object-fit: cover;
-  object-position: center 28%;
+  padding: 11px 13px;
+  color: #1f2b1d;
+  background: #95ec69;
+  border: 0;
   border-radius: 4px;
 }
 

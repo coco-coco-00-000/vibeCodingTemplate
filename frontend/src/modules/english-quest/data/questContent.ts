@@ -199,14 +199,6 @@ export const trainingSteps: TrainingStep[] = [
     interaction: '朋友接受时选 Great! See you then.；朋友拒绝时选 No problem.',
     skillKeys: ['conversation-closing'],
   },
-  {
-    id: 'dialogue-order',
-    missionId: 'mission-2',
-    title: '小对话排序',
-    goal: '建立邀请、回应、收束的完整对话链。',
-    interaction: '把三条聊天消息排序成完整对话。',
-    skillKeys: ['invitation-pattern', 'response-understanding', 'conversation-closing'],
-  },
 ]
 
 export const miniGames: MiniGame[] = [
@@ -740,30 +732,5 @@ export const trainingLevels: TrainingLevel[] = [
     feedback: '接受时确认计划，拒绝时礼貌结束。',
     completion: '完成 4 轮对话接力。',
     skillKeys: ['conversation-closing', 'response-understanding'],
-  },
-  {
-    id: 'level-16-dialogue-order',
-    missionId: 'mission-2',
-    levelNumber: 14,
-    title: '小对话排序',
-    kind: 'dialogue-order',
-    screenCopy: '把邀请、回应、收尾排成完整对话。',
-    questions: [
-      {
-        id: 'accept-dialogue',
-        prompt: '题目 A',
-        orderedItems: ['Sounds good.', 'Great! See you then.', 'Do you want to play basketball tomorrow?'],
-        correctOrder: ['Do you want to play basketball tomorrow?', 'Sounds good.', 'Great! See you then.'],
-      },
-      {
-        id: 'refuse-dialogue',
-        prompt: '题目 B',
-        orderedItems: ['No problem.', 'Do you want to go shopping this Saturday?', "Sorry, I can't."],
-        correctOrder: ['Do you want to go shopping this Saturday?', "Sorry, I can't.", 'No problem.'],
-      },
-    ],
-    feedback: '完整对话完成！你已经能完成一次基础邀约闭环。',
-    completion: '完成 2 组对话排序。',
-    skillKeys: ['invitation-pattern', 'response-understanding', 'conversation-closing'],
   },
 ]

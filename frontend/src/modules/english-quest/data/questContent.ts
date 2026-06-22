@@ -580,6 +580,8 @@ export const trainingLevels: TrainingLevel[] = [
         id: 'repeat-swim',
         prompt: '点击小喇叭听句子，然后点击开始录音。',
         sentence: 'Do you want to go swimming this Saturday?',
+        audioText: 'Do you want to go swimming this Saturday?',
+        spokenAnswer: 'Do you want to go swimming this Saturday?',
       },
     ],
     feedback: '读得不错！现在你可以用这句话邀请朋友了。',

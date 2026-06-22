@@ -92,6 +92,7 @@ const canContinue = computed(() => {
     return revealedInviteParts.value.length === (currentQuestion.value.pairs?.length ?? 0)
   }
   if (currentLevel.value.kind === 'speaking') return speakingStatus.value === 'result'
+  if (currentLevel.value.kind === 'repeat') return speakingStatus.value === 'result'
   if (currentLevel.value.kind === 'matching') {
     return matchedPairLefts.value.length === (currentQuestion.value.pairs?.length ?? 0)
   }
@@ -472,9 +473,22 @@ onBeforeUnmount(() => {
           </p>
         </div>
 
-        <div v-else-if="currentLevel.kind === 'repeat'" class="training-field__repeat">
-          <button type="button" @click="revealAnswer">🔊 播放句子</button>
-          <button type="button" @click="revealAnswer">开始录音</button>
+        <div v-else-if="currentLevel.kind === 'repeat'" class="training-field__speaking">
+          <button
+            type="button"
+            class="training-field__record-button"
+            :class="{ 'is-recording': speakingStatus === 'recording', 'is-finished': speakingStatus === 'result' }"
+            :disabled="speakingStatus === 'recording'"
+            @click="startSpeaking"
+          >
+            <span aria-hidden="true">●</span>
+            <strong>{{ speakingStatus === 'recording' ? '正在收音...' : speakingStatus === 'result' ? '重新录音' : '录音' }}</strong>
+          </button>
+          <p v-if="speakingStatus === 'recording'" class="training-field__speaking-status">听一听你的英文表达...</p>
+          <p v-else-if="speakingStatus === 'result'" class="training-field__speaking-result">
+            识别结果：<strong>{{ currentQuestion.spokenAnswer }}</strong>。说得很好！
+          </p>
+          <p v-else class="training-field__speaking-status">先点击小喇叭听一遍，再点击录音跟读。</p>
         </div>
 
         <div v-else-if="currentLevel.id === 'level-7-invite-function'" class="training-field__invite-chat">

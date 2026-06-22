@@ -65,6 +65,9 @@ const transferHintVisible = ref(false)
 const responseMode = ref<'accept' | 'refuse'>('accept')
 const heardAcceptedResponse = ref(false)
 const heardRefusedResponse = ref(false)
+const closingRefusal = ref(false)
+const heardAcceptClosing = ref(false)
+const heardRefuseClosing = ref(false)
 const speakingStatus = ref<'idle' | 'recording' | 'result'>('idle')
 let audioTimer: number | undefined
 let speakingTimer: number | undefined
@@ -101,6 +104,7 @@ const canContinue = computed(() => {
   if (currentLevel.value.id === 'level-13-response-explore') {
     return responseMode.value === 'refuse' && heardRefusedResponse.value
   }
+  if (currentLevel.value.id === 'level-15-closing') return closingRefusal.value && heardRefuseClosing.value
   if (currentLevel.value.kind === 'speaking') return speakingStatus.value === 'result'
   if (currentLevel.value.kind === 'repeat') return speakingStatus.value === 'result'
   if (currentLevel.value.kind === 'matching') {
@@ -123,6 +127,9 @@ watch([levelIndex, questionIndex], () => {
   responseMode.value = 'accept'
   heardAcceptedResponse.value = false
   heardRefusedResponse.value = false
+  closingRefusal.value = false
+  heardAcceptClosing.value = false
+  heardRefuseClosing.value = false
   speakingStatus.value = 'idle'
   if (speakingTimer) window.clearTimeout(speakingTimer)
 })
@@ -235,6 +242,21 @@ function showRefusedResponse() {
   responseMode.value = 'refuse'
 }
 
+function playClosingMessage() {
+  const message = closingRefusal.value ? 'No problem.' : 'Great! See you then.'
+  playAudio(message, `closing-${closingRefusal.value ? 'refuse' : 'accept'}`)
+  if (closingRefusal.value) {
+    heardRefuseClosing.value = true
+    revealAnswer()
+    return
+  }
+  heardAcceptClosing.value = true
+}
+
+function showClosingRefusal() {
+  closingRefusal.value = true
+}
+
 function addSentenceBlock(block: string) {
   if (sentenceDraft.value.includes(block)) return
   sentenceDraft.value.push(block)
@@ -338,7 +360,7 @@ onBeforeUnmount(() => {
           <strong v-if="currentLevel.kind === 'repeat'" class="training-field__audio-sentence">{{ currentQuestion.sentence }}</strong>
         </button>
 
-        <div v-if="currentQuestion.sentence && currentLevel.id !== 'level-7-invite-function' && currentLevel.id !== 'level-13-response-explore' && currentLevel.id !== 'level-14-response-match' && currentLevel.kind !== 'repeat'" class="training-field__sentence">
+        <div v-if="currentQuestion.sentence && currentLevel.id !== 'level-7-invite-function' && currentLevel.id !== 'level-13-response-explore' && currentLevel.id !== 'level-14-response-match' && currentLevel.id !== 'level-15-closing' && currentLevel.kind !== 'repeat'" class="training-field__sentence">
           {{ currentQuestion.sentence }}
         </div>
 
@@ -680,6 +702,29 @@ onBeforeUnmount(() => {
           >
             如果公主拒绝邀约，她会说…
           </button>
+        </div>
+
+        <div v-else-if="currentLevel.id === 'level-15-closing'" class="training-field__response-chat">
+          <div class="training-field__chat-header"><strong>公主</strong></div>
+          <div class="training-field__response-row training-field__response-row--link">
+            <div class="training-field__response-bubble training-field__response-bubble--link">{{ currentQuestion.sentence }}</div>
+            <img :src="linkSwimming" alt="林克" class="training-field__response-avatar training-field__response-avatar--link" />
+          </div>
+          <div class="training-field__response-row training-field__response-row--princess">
+            <img :src="princessSelfie" alt="公主" class="training-field__response-avatar training-field__response-avatar--princess" />
+            <div class="training-field__response-bubble training-field__response-bubble--princess">{{ closingRefusal ? "Sorry, I can't." : 'Sounds good.' }}</div>
+          </div>
+          <div class="training-field__response-row training-field__response-row--link training-field__response-sticker-row">
+            <img :src="closingRefusal ? linkReactionSad : linkReactionHappy" alt="林克表情" class="training-field__response-sticker-image" />
+            <img :src="linkSwimming" alt="林克" class="training-field__response-avatar training-field__response-avatar--link" />
+          </div>
+          <button
+            type="button"
+            class="training-field__response-bubble training-field__response-bubble--link training-field__closing-message"
+            :class="{ 'is-playing': audioPlayingId === `closing-${closingRefusal ? 'refuse' : 'accept'}` }"
+            @click="playClosingMessage"
+          >{{ closingRefusal ? 'No problem.' : 'Great! See you then.' }}</button>
+          <button v-if="!closingRefusal && heardAcceptClosing" type="button" class="training-field__response-prompt" @click="showClosingRefusal">如果公主拒绝邀约，你可以说…</button>
         </div>
 
         <div v-else-if="currentLevel.kind === 'chat-explore'" class="training-field__chat">
@@ -1700,6 +1745,25 @@ onBeforeUnmount(() => {
 
 .training-field__response-sticker-row {
   padding-top: 0;
+}
+
+.training-field__response-sticker-image {
+  width: 86px;
+  height: 86px;
+  object-fit: cover;
+  border: 1px solid rgba(60, 211, 252, 0.42);
+  border-radius: 4px;
+}
+
+.training-field__closing-message {
+  justify-self: end;
+  margin-right: 52px;
+  cursor: pointer;
+}
+
+.training-field__closing-message.is-playing {
+  background: #b3f48d;
+  box-shadow: 0 0 0 2px rgba(103, 173, 78, 0.34);
 }
 
 .training-field__response-sticker {

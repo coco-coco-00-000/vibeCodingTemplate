@@ -58,6 +58,7 @@ const mismatchedPairRight = ref('')
 const inviteSentenceHeard = ref(false)
 const revealedInviteParts = ref<string[]>([])
 const sentenceDraft = ref<string[]>([])
+const transferHintVisible = ref(false)
 const speakingStatus = ref<'idle' | 'recording' | 'result'>('idle')
 let audioTimer: number | undefined
 let speakingTimer: number | undefined
@@ -109,6 +110,7 @@ watch([levelIndex, questionIndex], () => {
   inviteSentenceHeard.value = false
   revealedInviteParts.value = []
   sentenceDraft.value = []
+  transferHintVisible.value = false
   speakingStatus.value = 'idle'
   if (speakingTimer) window.clearTimeout(speakingTimer)
 })
@@ -295,7 +297,7 @@ onBeforeUnmount(() => {
         </div>
 
         <img
-          v-if="currentQuestion.imageId"
+          v-if="currentQuestion.imageId && currentLevel.id !== 'level-12-fade-transfer'"
           class="training-field__transfer-image"
           :src="questionImages[currentQuestion.imageId]"
           :alt="'活动场景图'"
@@ -341,6 +343,45 @@ onBeforeUnmount(() => {
             <img :src="activityImagesByEmoji[option.emoji ?? '']" :alt="option.label" />
             <b>{{ option.id }}</b>
           </button>
+        </div>
+
+        <div v-else-if="currentLevel.id === 'level-12-fade-transfer'" class="training-field__transfer-speaking">
+          <div class="training-field__transfer-clues">
+            <img :src="questionImages[currentQuestion.imageId ?? '']" alt="活动场景图" />
+            <div class="training-field__calendar" aria-label="周末日历">
+              <strong>周末计划</strong>
+              <div class="training-field__calendar-weekdays"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+              <div class="training-field__calendar-days">
+                <span v-for="day in 7" :key="day" :class="{ 'is-selected': day === currentQuestion.calendarDay }">{{ day }}</span>
+              </div>
+            </div>
+          </div>
+          <div v-if="currentQuestion.sentenceFrame || transferHintVisible" class="training-field__transfer-frame">
+            {{ currentQuestion.sentenceFrame || currentQuestion.hintText }}
+          </div>
+          <button
+            v-else
+            type="button"
+            class="training-field__hint-button"
+            @click="transferHintVisible = true"
+          >
+            给点提示
+          </button>
+          <button
+            type="button"
+            class="training-field__record-button"
+            :class="{ 'is-recording': speakingStatus === 'recording', 'is-finished': speakingStatus === 'result' }"
+            :disabled="speakingStatus === 'recording'"
+            @click="startSpeaking"
+          >
+            <span aria-hidden="true">●</span>
+            <strong>{{ speakingStatus === 'recording' ? '正在收音...' : speakingStatus === 'result' ? '重新录音' : '录音' }}</strong>
+          </button>
+          <p v-if="speakingStatus === 'recording'" class="training-field__speaking-status">听一听你的英文表达...</p>
+          <p v-else-if="speakingStatus === 'result'" class="training-field__speaking-result">
+            识别结果：<strong>{{ currentQuestion.spokenAnswer }}</strong>。说得很好！
+          </p>
+          <p v-else class="training-field__speaking-status">看图和日历，说出完整邀请句。</p>
         </div>
 
         <div v-else-if="currentLevel.kind === 'speaking'" class="training-field__speaking">
@@ -746,6 +787,98 @@ onBeforeUnmount(() => {
   object-fit: contain;
   background: rgba(4, 10, 14, 0.62);
   border: 1px solid rgba(60, 211, 252, 0.42);
+}
+
+.training-field__transfer-speaking {
+  display: grid;
+  justify-items: center;
+  gap: 16px;
+  padding: 8px 0;
+}
+
+.training-field__transfer-clues {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) 250px;
+  gap: 18px;
+  width: min(100%, 720px);
+  align-items: stretch;
+}
+
+.training-field__transfer-clues > img {
+  width: 100%;
+  min-height: 260px;
+  max-height: 320px;
+  object-fit: contain;
+  background: rgba(4, 10, 14, 0.62);
+  border: 1px solid rgba(60, 211, 252, 0.42);
+}
+
+.training-field__calendar {
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  gap: 14px;
+  padding: 18px;
+  color: @quest-text;
+  background: rgba(7, 18, 25, 0.84);
+  border: 1px solid rgba(252, 196, 19, 0.5);
+}
+
+.training-field__calendar > strong {
+  color: #f6ce70;
+  font-size: 18px;
+  text-align: center;
+}
+
+.training-field__calendar-weekdays,
+.training-field__calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  text-align: center;
+}
+
+.training-field__calendar-weekdays {
+  color: rgba(233, 225, 209, 0.66);
+  font-size: 13px;
+}
+
+.training-field__calendar-days span {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  justify-self: center;
+  font-weight: 700;
+}
+
+.training-field__calendar-days span.is-selected {
+  color: #17150d;
+  background: @quest-gold;
+  border-radius: 50%;
+  box-shadow: 0 0 16px rgba(252, 196, 19, 0.42);
+}
+
+.training-field__transfer-frame {
+  padding: 12px 20px;
+  color: #bff6ff;
+  font-size: 23px;
+  font-weight: 700;
+  background: rgba(60, 211, 252, 0.12);
+  border: 1px solid rgba(60, 211, 252, 0.52);
+}
+
+.training-field__hint-button {
+  min-height: 42px;
+  padding: 10px 16px;
+  color: @quest-text;
+  cursor: pointer;
+  background: rgba(252, 196, 19, 0.12);
+  border: 1px solid rgba(252, 196, 19, 0.52);
+}
+
+@media (max-width: 720px) {
+  .training-field__transfer-clues { grid-template-columns: 1fr; }
+  .training-field__transfer-clues > img { min-height: 220px; }
 }
 
 .training-field__activity-grid {

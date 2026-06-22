@@ -77,6 +77,9 @@ export interface TrainingQuestion {
   imageId?: string
   imageLabel?: string
   spokenAnswer?: string
+  sentenceFrame?: string
+  hintText?: string
+  calendarDay?: number
   sentence?: string
   options?: TrainingOption[]
   correctOptionId?: string

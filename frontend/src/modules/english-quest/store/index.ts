@@ -16,6 +16,7 @@ export const useEnglishQuestStore = defineStore('englishQuest', () => {
 
   const completedTrainingCount = computed(() => completedTrainingStepIds.value.length)
   const allTrainingComplete = computed(() => completedTrainingCount.value >= trainingLevels.length)
+  const scenarioRewardUnlocked = computed(() => completedScenarioTaskIds.value.length >= scenarioTasks.length)
 
   const activeScenarioTask = computed<ScenarioTask | undefined>(() =>
     scenarioTasks.find((task) => task.id === activeScenarioTaskId.value),
@@ -42,9 +43,6 @@ export const useEnglishQuestStore = defineStore('englishQuest', () => {
 
   function completeScenarioTask(taskId: string) {
     if (!completedScenarioTaskIds.value.includes(taskId)) completedScenarioTaskIds.value.push(taskId)
-    const index = scenarioTasks.findIndex((task) => task.id === taskId)
-    const next = scenarioTasks[index + 1]
-    if (next) activeScenarioTaskId.value = next.id
     updateMastery(['invitation-pattern', 'response-understanding', 'conversation-closing'], 6)
   }
 
@@ -68,6 +66,7 @@ export const useEnglishQuestStore = defineStore('englishQuest', () => {
     activeScenarioTaskId,
     completedTrainingCount,
     allTrainingComplete,
+    scenarioRewardUnlocked,
     activeScenarioTask,
     completeTrainingStep,
     completeMiniGame,

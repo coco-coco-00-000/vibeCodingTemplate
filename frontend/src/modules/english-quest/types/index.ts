@@ -110,15 +110,30 @@ export interface MiniGame {
   routeName: string
 }
 
+export type ScenarioChatPhase = 'invite' | 'follow-up' | 'complete'
+
 export interface ScenarioTask {
   id: string
   friendName: string
-  clue: string
+  friendRole: string
+  friendAvatar: 'princess' | 'purah' | 'tulin'
   activityId: string
-  timeId: string
-  responseId: string
+  activityLabel: string
+  timeLabel: string
+  taskPrompt: string
+  responseText: string
+  responseZh: string
   expectedInvitation: string
+  invitationKeywordGroups: string[][]
   expectedFollowUp: string
+  followUpKeywordGroups: string[][]
+  badgeTitle: string
+  badgeIcon: string
+}
+
+export interface SpeechEvaluation {
+  passed: boolean
+  missing: number[]
 }
 
 export interface MasteryEntry {

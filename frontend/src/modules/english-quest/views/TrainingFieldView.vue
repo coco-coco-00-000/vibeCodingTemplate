@@ -55,6 +55,8 @@ const matchingTranslationOrder = ['去购物', '看电影', '去游泳', '打电
 const selectedPairLeft = ref('')
 const matchedPairLefts = ref<string[]>([])
 const mismatchedPairRight = ref('')
+const inviteSentenceHeard = ref(false)
+const revealedInviteParts = ref<string[]>([])
 const speakingStatus = ref<'idle' | 'recording' | 'result'>('idle')
 let audioTimer: number | undefined
 let speakingTimer: number | undefined
@@ -75,6 +77,9 @@ const canContinue = computed(() => {
     return tappedOptionIds.value.length === (currentQuestion.value.options?.length ?? 0)
   }
   if (currentLevel.value.kind === 'choice') return selectedCorrect.value
+  if (currentLevel.value.id === 'level-7-invite-function') {
+    return revealedInviteParts.value.length === (currentQuestion.value.pairs?.length ?? 0)
+  }
   if (currentLevel.value.kind === 'speaking') return speakingStatus.value === 'result'
   if (currentLevel.value.kind === 'matching') {
     return matchedPairLefts.value.length === (currentQuestion.value.pairs?.length ?? 0)
@@ -89,6 +94,8 @@ watch([levelIndex, questionIndex], () => {
   selectedPairLeft.value = ''
   matchedPairLefts.value = []
   mismatchedPairRight.value = ''
+  inviteSentenceHeard.value = false
+  revealedInviteParts.value = []
   speakingStatus.value = 'idle'
   if (speakingTimer) window.clearTimeout(speakingTimer)
 })
@@ -158,7 +165,13 @@ function tapCard(optionId: string, text: string) {
 function playInviteMessage() {
   if (!currentQuestion.value.sentence) return
   playAudio(currentQuestion.value.sentence, `invite-${currentQuestion.value.id}`)
-  revealAnswer()
+  inviteSentenceHeard.value = true
+}
+
+function tapInvitePart(part: string) {
+  playAudio(part, `invite-part-${part}`)
+  if (!revealedInviteParts.value.includes(part)) revealedInviteParts.value.push(part)
+  if (revealedInviteParts.value.length === (currentQuestion.value.pairs?.length ?? 0)) revealAnswer()
 }
 
 function completeLevel() {
@@ -434,6 +447,20 @@ onBeforeUnmount(() => {
               {{ currentQuestion.sentence }}
             </button>
             <img :src="linkSwimming" alt="林克" class="training-field__invite-avatar" />
+          </div>
+          <div v-if="inviteSentenceHeard" class="training-field__invite-parts">
+            <p>把这句话拆开看：</p>
+            <button
+              v-for="pair in currentQuestion.pairs"
+              :key="pair.left"
+              type="button"
+              class="training-field__invite-part"
+              :class="{ 'is-revealed': revealedInviteParts.includes(pair.left), 'is-playing': audioPlayingId === `invite-part-${pair.left}` }"
+              @click="tapInvitePart(pair.left)"
+            >
+              <small>{{ revealedInviteParts.includes(pair.left) ? pair.right : '' }}</small>
+              <strong>{{ pair.left }}</strong>
+            </button>
           </div>
         </div>
 
@@ -1050,6 +1077,57 @@ onBeforeUnmount(() => {
 .training-field__invite-message.is-playing {
   background: #b3f48d;
   box-shadow: 0 0 0 2px rgba(103, 173, 78, 0.34);
+}
+
+.training-field__invite-parts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 0 2px;
+  border-top: 1px solid #d7d7d7;
+}
+
+.training-field__invite-parts > p {
+  flex-basis: 100%;
+  margin: 0 0 2px;
+  color: #7c7c7c;
+  font-size: 13px;
+  text-align: center;
+}
+
+.training-field__invite-part {
+  display: grid;
+  min-width: 132px;
+  min-height: 78px;
+  align-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  color: #222;
+  background: #fff;
+  border: 1px solid #d6d6d6;
+  cursor: pointer;
+}
+
+.training-field__invite-part small {
+  min-height: 18px;
+  color: #478c37;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.training-field__invite-part strong {
+  font-size: 17px;
+  line-height: 1.25;
+}
+
+.training-field__invite-part.is-revealed {
+  border-color: #70b35e;
+  background: #f3ffed;
+}
+
+.training-field__invite-part.is-playing {
+  box-shadow: 0 0 0 2px rgba(112, 179, 94, 0.28);
 }
 
 .training-field__bubble {

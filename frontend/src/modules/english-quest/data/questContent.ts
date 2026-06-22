@@ -512,41 +512,23 @@ export const trainingLevels: TrainingLevel[] = [
     questions: [
       {
         id: 'invite-bubble',
-        prompt: '想邀请朋友一起做活动，可以这样说：',
+        prompt: '先听一听这句邀请，再把它拆开看。',
         sentence: 'Do you want to go swimming this Saturday?',
-      },
-    ],
-    feedback: '这句可以用来邀请朋友一起做活动。',
-    completion: '点击聊天消息，听一听这句邀请。',
-    skillKeys: ['invitation-pattern', 'activity-chunks'],
-  },
-  {
-    id: 'level-8-structure',
-    missionId: 'mission-2',
-    levelNumber: 8,
-    title: '观察句型结构',
-    kind: 'tagging',
-    screenCopy: '把邀请句拆成 3 个部分。',
-    questions: [
-      {
-        id: 'structure',
-        prompt: '点击语块，观察它在句子里的作用。',
-        sentence: 'Do you want to watch a movie this Sunday?',
         pairs: [
-          { left: 'Do you want to', right: '你想不想...' },
-          { left: 'watch a movie', right: '活动' },
-          { left: 'this Sunday', right: '时间' },
+          { left: 'Do you want to', right: '你想不想…' },
+          { left: 'go swimming', right: '活动' },
+          { left: 'this Saturday', right: '时间' },
         ],
       },
     ],
-    feedback: '这条邀请句的结构已解锁。',
-    completion: '完成 3 个语块标注。',
-    skillKeys: ['invitation-pattern', 'activity-chunks', 'time-expressions'],
+    feedback: '邀请句由邀请开头、活动和时间组成。',
+    completion: '点击聊天消息，再点亮 3 个语块。',
+    skillKeys: ['invitation-pattern', 'activity-chunks'],
   },
   {
     id: 'level-9-activity-slot',
     missionId: 'mission-2',
-    levelNumber: 9,
+    levelNumber: 8,
     title: '固定框架填活动槽',
     kind: 'choice',
     screenCopy: '把活动放进邀请句。',
@@ -569,7 +551,7 @@ export const trainingLevels: TrainingLevel[] = [
   {
     id: 'level-10-sentence-build',
     missionId: 'mission-2',
-    levelNumber: 10,
+    levelNumber: 9,
     title: '语块拼完整句',
     kind: 'sentence-build',
     screenCopy: '把语块排成一句完整邀请。',
@@ -588,7 +570,7 @@ export const trainingLevels: TrainingLevel[] = [
   {
     id: 'level-11-repeat',
     missionId: 'mission-2',
-    levelNumber: 11,
+    levelNumber: 10,
     title: '跟读完整句',
     kind: 'repeat',
     screenCopy: '跟读这句邀请。',
@@ -606,7 +588,7 @@ export const trainingLevels: TrainingLevel[] = [
   {
     id: 'level-12-fade-transfer',
     missionId: 'mission-2',
-    levelNumber: 12,
+    levelNumber: 11,
     title: '撤提示迁移',
     kind: 'choice',
     screenCopy: '提示逐渐变少，试着选出或补全邀请句。',
@@ -655,7 +637,7 @@ export const trainingLevels: TrainingLevel[] = [
   {
     id: 'level-13-response-explore',
     missionId: 'mission-2',
-    levelNumber: 13,
+    levelNumber: 12,
     title: '朋友回应分类',
     kind: 'chat-explore',
     screenCopy: '学习一下朋友不同的回应代表什么意思。',
@@ -676,7 +658,7 @@ export const trainingLevels: TrainingLevel[] = [
   {
     id: 'level-14-response-match',
     missionId: 'mission-2',
-    levelNumber: 14,
+    levelNumber: 13,
     title: '回应和表情匹配',
     kind: 'matching',
     screenCopy: '把朋友的话和表情匹配起来。',
@@ -698,7 +680,7 @@ export const trainingLevels: TrainingLevel[] = [
   {
     id: 'level-15-closing',
     missionId: 'mission-2',
-    levelNumber: 15,
+    levelNumber: 14,
     title: '根据回应选择下一句',
     kind: 'choice',
     screenCopy: '朋友回复后，你应该接哪一句？',
@@ -731,7 +713,7 @@ export const trainingLevels: TrainingLevel[] = [
   {
     id: 'level-16-dialogue-order',
     missionId: 'mission-2',
-    levelNumber: 16,
+    levelNumber: 15,
     title: '小对话排序',
     kind: 'dialogue-order',
     screenCopy: '把邀请、回应、收尾排成完整对话。',

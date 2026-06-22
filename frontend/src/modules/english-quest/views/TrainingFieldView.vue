@@ -14,6 +14,8 @@ import linkV2Movie from '../assets/link-v2-movie.png'
 import linkV2Shopping from '../assets/link-v2-shopping.png'
 import linkV2Swimming from '../assets/link-v2-swimming.png'
 import linkV2VideoGames from '../assets/link-v2-video-games.png'
+import linkReactionHappy from '../assets/link-reaction-happy.png'
+import linkReactionSad from '../assets/link-reaction-sad.png'
 import princessSelfie from '../assets/princess-selfie.png'
 
 const { completedTrainingStepIds, mastery, miniGames, store, trainingLevels, trainingProgress } = useQuestProgress()
@@ -453,6 +455,7 @@ onBeforeUnmount(() => {
             :class="{ 'is-playing': audioPlayingId === `response-listen-${currentQuestion.id}` }"
             @click="playFemaleAudio(currentQuestion.audioText ?? '', `response-listen-${currentQuestion.id}`)"
           >
+            <img :src="princessSelfie" alt="公主" class="training-field__listen-avatar" />
             <span aria-hidden="true">🔊</span>
             <strong>播放回应</strong>
           </button>
@@ -470,8 +473,7 @@ onBeforeUnmount(() => {
               }"
               @click="selectOption(option.id)"
             >
-              <img :src="linkSwimming" alt="林克" />
-              <strong>{{ option.label }}</strong>
+              <img :src="option.id === 'accept' ? linkReactionHappy : linkReactionSad" alt="林克反应" />
             </button>
           </div>
           <div v-if="revealed" class="training-field__response-result">{{ currentQuestion.sentence }}</div>
@@ -1161,6 +1163,13 @@ onBeforeUnmount(() => {
   font-size: 22px;
 }
 
+.training-field__listen-avatar {
+  width: 34px;
+  height: 34px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
 .training-field__listen-button.is-playing {
   color: #bff6ff;
   box-shadow: 0 0 20px rgba(60, 211, 252, 0.34);
@@ -1186,20 +1195,12 @@ onBeforeUnmount(() => {
 }
 
 .training-field__reaction-card img {
-  width: 124px;
-  height: 124px;
+  width: 100%;
+  max-width: 184px;
+  aspect-ratio: 1;
   object-fit: cover;
-  object-position: center 28%;
   border: 1px solid rgba(60, 211, 252, 0.42);
   border-radius: 4px;
-}
-
-.training-field__reaction-card.is-sad img {
-  filter: grayscale(0.78) brightness(0.84);
-}
-
-.training-field__reaction-card strong {
-  font-size: 19px;
 }
 
 .training-field__reaction-card.is-selected {

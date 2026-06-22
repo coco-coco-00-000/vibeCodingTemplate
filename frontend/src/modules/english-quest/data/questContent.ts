@@ -535,7 +535,8 @@ export const trainingLevels: TrainingLevel[] = [
     questions: [
       {
         id: 'activity-slot',
-        prompt: 'Do you want to ____ tomorrow? 图片：篮球场图',
+        prompt: 'Do you want to ____ tomorrow?',
+        imageId: 'v2-basketball',
         options: [
           { id: 'A', label: 'go shopping' },
           { id: 'B', label: 'play basketball' },

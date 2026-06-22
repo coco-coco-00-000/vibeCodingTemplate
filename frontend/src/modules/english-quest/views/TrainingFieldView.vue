@@ -57,6 +57,7 @@ const matchedPairLefts = ref<string[]>([])
 const mismatchedPairRight = ref('')
 const inviteSentenceHeard = ref(false)
 const revealedInviteParts = ref<string[]>([])
+const sentenceDraft = ref<string[]>([])
 const speakingStatus = ref<'idle' | 'recording' | 'result'>('idle')
 let audioTimer: number | undefined
 let speakingTimer: number | undefined
@@ -72,11 +73,21 @@ const selectedCorrect = computed(() => {
   return selectedOptionId.value === currentQuestion.value.correctOptionId
 })
 
+const sentenceDraftIsComplete = computed(() => {
+  return sentenceDraft.value.length === (currentQuestion.value.correctOrder?.length ?? 0)
+})
+
+const sentenceDraftIsCorrect = computed(() => {
+  const correctOrder = currentQuestion.value.correctOrder ?? []
+  return correctOrder.length > 0 && sentenceDraft.value.every((item, index) => item === correctOrder[index])
+})
+
 const canContinue = computed(() => {
   if (currentLevel.value.kind === 'activity-cards') {
     return tappedOptionIds.value.length === (currentQuestion.value.options?.length ?? 0)
   }
   if (currentLevel.value.kind === 'choice') return selectedCorrect.value
+  if (currentLevel.value.kind === 'sentence-build') return sentenceDraftIsComplete.value && sentenceDraftIsCorrect.value
   if (currentLevel.value.id === 'level-7-invite-function') {
     return revealedInviteParts.value.length === (currentQuestion.value.pairs?.length ?? 0)
   }
@@ -96,6 +107,7 @@ watch([levelIndex, questionIndex], () => {
   mismatchedPairRight.value = ''
   inviteSentenceHeard.value = false
   revealedInviteParts.value = []
+  sentenceDraft.value = []
   speakingStatus.value = 'idle'
   if (speakingTimer) window.clearTimeout(speakingTimer)
 })
@@ -172,6 +184,17 @@ function tapInvitePart(part: string) {
   playAudio(part, `invite-part-${part}`)
   if (!revealedInviteParts.value.includes(part)) revealedInviteParts.value.push(part)
   if (revealedInviteParts.value.length === (currentQuestion.value.pairs?.length ?? 0)) revealAnswer()
+}
+
+function addSentenceBlock(block: string) {
+  if (sentenceDraft.value.includes(block)) return
+  sentenceDraft.value.push(block)
+  revealed.value = sentenceDraftIsComplete.value && sentenceDraftIsCorrect.value
+}
+
+function removeSentenceBlock(index: number) {
+  sentenceDraft.value.splice(index, 1)
+  revealed.value = false
 }
 
 function completeLevel() {
@@ -416,15 +439,37 @@ onBeforeUnmount(() => {
           </button>
         </div>
 
-        <div v-else-if="currentLevel.kind === 'sentence-build'" class="training-field__blocks">
-          <p>乱序语块</p>
-          <div class="training-field__block-row">
-            <span v-for="item in currentQuestion.orderedItems" :key="item">{{ item }}</span>
+        <div v-else-if="currentLevel.kind === 'sentence-build'" class="training-field__sentence-builder">
+          <p>拼句框</p>
+          <div class="training-field__sentence-draft" :class="{ 'is-complete': sentenceDraft.length }">
+            <button
+              v-for="(item, index) in sentenceDraft"
+              :key="`${item}-${index}`"
+              type="button"
+              class="training-field__sentence-block training-field__sentence-block--draft"
+              @click="removeSentenceBlock(index)"
+            >
+              {{ item }}
+            </button>
+            <span v-if="!sentenceDraft.length">点击下方词块开始拼句</span>
           </div>
-          <button type="button" class="training-field__ghost-button" @click="revealAnswer">检查排序</button>
-          <div v-if="revealed" class="training-field__answer">
-            {{ currentQuestion.correctOrder?.join(' ') }}?
+
+          <p>词块</p>
+          <div class="training-field__sentence-bank">
+            <button
+              v-for="item in currentQuestion.orderedItems"
+              :key="item"
+              type="button"
+              class="training-field__sentence-block"
+              :disabled="sentenceDraft.includes(item)"
+              @click="addSentenceBlock(item)"
+            >
+              {{ item }}
+            </button>
           </div>
+          <p v-if="sentenceDraftIsComplete && !sentenceDraftIsCorrect" class="training-field__sentence-tip">
+            顺序不太对，点击拼句框里的词块撤回后再试。
+          </p>
         </div>
 
         <div v-else-if="currentLevel.kind === 'repeat'" class="training-field__repeat">
@@ -494,8 +539,11 @@ onBeforeUnmount(() => {
           </ol>
         </div>
 
-        <div class="training-field__feedback" :class="{ 'is-visible': revealed || selectedOptionId }">
+        <div class="training-field__feedback" :class="{ 'is-visible': revealed || selectedOptionId || (currentLevel.kind === 'sentence-build' && sentenceDraftIsComplete) }">
           <template v-if="selectedOptionId && !selectedCorrect">再试一次，看看题目里的线索。</template>
+          <template v-else-if="currentLevel.kind === 'sentence-build' && sentenceDraftIsComplete && !sentenceDraftIsCorrect">
+            再试一次，看看邀请开头、活动和时间的顺序。
+          </template>
           <template v-else-if="revealed">{{ currentLevel.feedback }}</template>
           <template v-else>{{ currentLevel.completion }}</template>
         </div>
@@ -1015,6 +1063,89 @@ onBeforeUnmount(() => {
   color: @quest-text;
   background: rgba(60, 211, 252, 0.13);
   border: 1px solid rgba(60, 211, 252, 0.42);
+}
+
+.training-field__sentence-builder {
+  display: grid;
+  gap: 10px;
+}
+
+.training-field__sentence-builder > p {
+  margin: 0;
+  color: @quest-muted;
+  font-size: 13px;
+}
+
+.training-field__sentence-draft,
+.training-field__sentence-bank {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  min-height: 86px;
+  padding: 16px;
+  background: rgba(4, 10, 14, 0.62);
+  border: 1px solid rgba(60, 211, 252, 0.36);
+}
+
+.training-field__sentence-draft {
+  border-style: dashed;
+}
+
+.training-field__sentence-draft.is-complete {
+  border-style: solid;
+}
+
+.training-field__sentence-draft > span {
+  color: rgba(233, 225, 209, 0.5);
+  font-size: 15px;
+}
+
+.training-field__sentence-bank {
+  min-height: 76px;
+  background: rgba(7, 18, 25, 0.72);
+}
+
+.training-field__sentence-block {
+  min-height: 46px;
+  padding: 10px 16px;
+  color: @quest-text;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.25;
+  cursor: pointer;
+  background: rgba(60, 211, 252, 0.13);
+  border: 1px solid rgba(60, 211, 252, 0.52);
+  transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+}
+
+.training-field__sentence-block:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: rgba(60, 211, 252, 0.22);
+  border-color: @quest-sheikah;
+}
+
+.training-field__sentence-block:disabled {
+  color: rgba(233, 225, 209, 0.36);
+  cursor: default;
+  background: rgba(0, 0, 0, 0.24);
+  border-color: rgba(233, 225, 209, 0.16);
+}
+
+.training-field__sentence-block--draft {
+  background: rgba(143, 243, 138, 0.14);
+  border-color: rgba(143, 243, 138, 0.58);
+}
+
+.training-field__sentence-block--draft:hover {
+  background: rgba(252, 196, 19, 0.14);
+  border-color: @quest-gold;
+}
+
+.training-field__sentence-tip {
+  margin: 0;
+  color: #f6ce70 !important;
+  font-size: 13px !important;
 }
 
 .training-field__repeat {

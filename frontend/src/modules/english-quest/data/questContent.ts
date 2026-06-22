@@ -508,16 +508,16 @@ export const trainingLevels: TrainingLevel[] = [
     levelNumber: 7,
     title: '发现邀请功能',
     kind: 'chat-explore',
-    screenCopy: '想邀请 Mia 周六去游泳，可以这样说。',
+    screenCopy: '活动词块学会了，接下来学学邀请句型怎么说。',
     questions: [
       {
         id: 'invite-bubble',
-        prompt: 'Mia 和 Alex 一起在游泳。日历标签：Saturday。',
+        prompt: '想邀请朋友一起做活动，可以这样说：',
         sentence: 'Do you want to go swimming this Saturday?',
       },
     ],
-    feedback: '这句话发出去，Mia 会知道你想约她周六一起去游泳。',
-    completion: '点击听整句，再继续。',
+    feedback: '这句可以用来邀请朋友一起做活动。',
+    completion: '点击聊天消息，听一听这句邀请。',
     skillKeys: ['invitation-pattern', 'activity-chunks'],
   },
   {

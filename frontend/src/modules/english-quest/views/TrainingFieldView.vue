@@ -155,6 +155,12 @@ function tapCard(optionId: string, text: string) {
   if (!tappedOptionIds.value.includes(optionId)) tappedOptionIds.value.push(optionId)
 }
 
+function playInviteMessage() {
+  if (!currentQuestion.value.sentence) return
+  playAudio(currentQuestion.value.sentence, `invite-${currentQuestion.value.id}`)
+  revealAnswer()
+}
+
 function completeLevel() {
   if (!isLastQuestion.value) {
     questionIndex.value += 1
@@ -246,7 +252,7 @@ onBeforeUnmount(() => {
           <strong>点击播放英文</strong>
         </button>
 
-        <div v-if="currentQuestion.sentence" class="training-field__sentence">
+        <div v-if="currentQuestion.sentence && currentLevel.id !== 'level-7-invite-function'" class="training-field__sentence">
           {{ currentQuestion.sentence }}
         </div>
 
@@ -411,6 +417,30 @@ onBeforeUnmount(() => {
         <div v-else-if="currentLevel.kind === 'repeat'" class="training-field__repeat">
           <button type="button" @click="revealAnswer">🔊 播放句子</button>
           <button type="button" @click="revealAnswer">开始录音</button>
+        </div>
+
+        <div v-else-if="currentLevel.id === 'level-7-invite-function'" class="training-field__invite-chat">
+          <div class="training-field__chat-header">
+            <div class="training-field__chat-person">
+              <img :src="linkV2Swimming" alt="林克" class="training-field__chat-avatar training-field__chat-avatar--link" />
+              <span>林克</span>
+            </div>
+            <strong>聊天</strong>
+            <div class="training-field__chat-person training-field__chat-person--right">
+              <img :src="linkV2Swimming" alt="公主" class="training-field__chat-avatar training-field__chat-avatar--princess" />
+              <span>公主</span>
+            </div>
+          </div>
+          <p class="training-field__chat-time">周六上午</p>
+          <button
+            type="button"
+            class="training-field__invite-message"
+            :class="{ 'is-playing': audioPlayingId === `invite-${currentQuestion.id}` }"
+            @click="playInviteMessage"
+          >
+            <span>{{ currentQuestion.sentence }}</span>
+            <small>点击播放</small>
+          </button>
         </div>
 
         <div v-else-if="currentLevel.kind === 'chat-explore'" class="training-field__chat">
@@ -970,6 +1000,86 @@ onBeforeUnmount(() => {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
+}
+
+.training-field__invite-chat {
+  display: grid;
+  gap: 16px;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 14px;
+  background: rgba(10, 25, 31, 0.82);
+  border: 1px solid rgba(60, 211, 252, 0.34);
+}
+
+.training-field__chat-header {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(233, 225, 209, 0.16);
+}
+
+.training-field__chat-person {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(233, 225, 209, 0.8);
+  font-size: 13px;
+}
+
+.training-field__chat-person--right {
+  justify-content: end;
+}
+
+.training-field__chat-avatar {
+  width: 34px;
+  height: 34px;
+  object-fit: cover;
+  border: 1px solid rgba(60, 211, 252, 0.58);
+  border-radius: 50%;
+}
+
+.training-field__chat-avatar--link {
+  object-position: 24% center;
+}
+
+.training-field__chat-avatar--princess {
+  object-position: 76% center;
+}
+
+.training-field__chat-time {
+  justify-self: center;
+  margin: 0;
+  color: rgba(233, 225, 209, 0.48);
+  font-size: 12px;
+}
+
+.training-field__invite-message {
+  display: grid;
+  justify-self: start;
+  gap: 7px;
+  max-width: min(86%, 500px);
+  padding: 12px 14px;
+  color: @quest-text;
+  font-size: 18px;
+  line-height: 1.45;
+  text-align: left;
+  background: rgba(60, 211, 252, 0.17);
+  border: 1px solid rgba(60, 211, 252, 0.58);
+  border-radius: 8px 8px 8px 2px;
+  cursor: pointer;
+}
+
+.training-field__invite-message small {
+  color: rgba(191, 246, 255, 0.68);
+  font-size: 12px;
+}
+
+.training-field__invite-message.is-playing {
+  color: #fff6dd;
+  border-color: @quest-gold;
+  box-shadow: 0 0 20px rgba(252, 196, 19, 0.26);
 }
 
 .training-field__bubble {

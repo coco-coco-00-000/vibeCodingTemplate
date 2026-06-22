@@ -59,6 +59,9 @@ const inviteSentenceHeard = ref(false)
 const revealedInviteParts = ref<string[]>([])
 const sentenceDraft = ref<string[]>([])
 const transferHintVisible = ref(false)
+const responseMode = ref<'accept' | 'refuse'>('accept')
+const heardAcceptedResponse = ref(false)
+const heardRefusedResponse = ref(false)
 const speakingStatus = ref<'idle' | 'recording' | 'result'>('idle')
 let audioTimer: number | undefined
 let speakingTimer: number | undefined
@@ -92,6 +95,9 @@ const canContinue = computed(() => {
   if (currentLevel.value.id === 'level-7-invite-function') {
     return revealedInviteParts.value.length === (currentQuestion.value.pairs?.length ?? 0)
   }
+  if (currentLevel.value.id === 'level-13-response-explore') {
+    return responseMode.value === 'refuse' && heardRefusedResponse.value
+  }
   if (currentLevel.value.kind === 'speaking') return speakingStatus.value === 'result'
   if (currentLevel.value.kind === 'repeat') return speakingStatus.value === 'result'
   if (currentLevel.value.kind === 'matching') {
@@ -111,6 +117,9 @@ watch([levelIndex, questionIndex], () => {
   revealedInviteParts.value = []
   sentenceDraft.value = []
   transferHintVisible.value = false
+  responseMode.value = 'accept'
+  heardAcceptedResponse.value = false
+  heardRefusedResponse.value = false
   speakingStatus.value = 'idle'
   if (speakingTimer) window.clearTimeout(speakingTimer)
 })
@@ -172,6 +181,24 @@ function playAudio(text: string, playingId = '') {
   }, 900)
 }
 
+function playFemaleAudio(text: string, playingId: string) {
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel()
+    const utterance = new SpeechSynthesisUtterance(text)
+    const femaleVoice = window.speechSynthesis.getVoices().find((voice) => /female|samantha|victoria|zira|ava|allison|karen|moira|tessa/i.test(voice.name))
+    if (femaleVoice) utterance.voice = femaleVoice
+    utterance.lang = 'en-US'
+    utterance.rate = 0.88
+    utterance.pitch = 1.22
+    window.speechSynthesis.speak(utterance)
+  }
+  if (audioTimer) window.clearTimeout(audioTimer)
+  audioPlayingId.value = playingId
+  audioTimer = window.setTimeout(() => {
+    audioPlayingId.value = ''
+  }, 900)
+}
+
 function tapCard(optionId: string, text: string) {
   playAudio(text, optionId)
   if (!tappedOptionIds.value.includes(optionId)) tappedOptionIds.value.push(optionId)
@@ -187,6 +214,22 @@ function tapInvitePart(part: string) {
   playAudio(part, `invite-part-${part}`)
   if (!revealedInviteParts.value.includes(part)) revealedInviteParts.value.push(part)
   if (revealedInviteParts.value.length === (currentQuestion.value.pairs?.length ?? 0)) revealAnswer()
+}
+
+function playFriendResponse() {
+  const isRefusal = responseMode.value === 'refuse'
+  const response = isRefusal ? "Sorry, I can't." : 'Sounds good.'
+  playFemaleAudio(response, `friend-${responseMode.value}`)
+  if (isRefusal) {
+    heardRefusedResponse.value = true
+    revealAnswer()
+    return
+  }
+  heardAcceptedResponse.value = true
+}
+
+function showRefusedResponse() {
+  responseMode.value = 'refuse'
 }
 
 function addSentenceBlock(block: string) {
@@ -292,7 +335,7 @@ onBeforeUnmount(() => {
           <strong v-if="currentLevel.kind === 'repeat'" class="training-field__audio-sentence">{{ currentQuestion.sentence }}</strong>
         </button>
 
-        <div v-if="currentQuestion.sentence && currentLevel.id !== 'level-7-invite-function' && currentLevel.kind !== 'repeat'" class="training-field__sentence">
+        <div v-if="currentQuestion.sentence && currentLevel.id !== 'level-7-invite-function' && currentLevel.id !== 'level-13-response-explore' && currentLevel.kind !== 'repeat'" class="training-field__sentence">
           {{ currentQuestion.sentence }}
         </div>
 
@@ -563,6 +606,43 @@ onBeforeUnmount(() => {
               <strong>{{ pair.left }}</strong>
             </button>
           </div>
+        </div>
+
+        <div v-else-if="currentLevel.id === 'level-13-response-explore'" class="training-field__response-chat">
+          <div class="training-field__chat-header">
+            <strong>公主</strong>
+          </div>
+          <div class="training-field__response-row training-field__response-row--link">
+            <div class="training-field__response-bubble training-field__response-bubble--link">{{ currentQuestion.sentence }}</div>
+            <img :src="linkSwimming" alt="林克" class="training-field__response-avatar training-field__response-avatar--link" />
+          </div>
+          <div class="training-field__response-row training-field__response-row--princess">
+            <img :src="linkV2Swimming" alt="公主" class="training-field__response-avatar training-field__response-avatar--princess" />
+            <button
+              type="button"
+              class="training-field__response-bubble training-field__response-bubble--princess"
+              :class="{ 'is-playing': audioPlayingId === `friend-${responseMode}` }"
+              @click="playFriendResponse"
+            >
+              {{ responseMode === 'accept' ? 'Sounds good.' : "Sorry, I can't." }}
+            </button>
+          </div>
+          <div
+            v-if="(responseMode === 'accept' && heardAcceptedResponse) || (responseMode === 'refuse' && heardRefusedResponse)"
+            class="training-field__response-sticker"
+            :class="{ 'is-sad': responseMode === 'refuse' }"
+          >
+            <img :src="linkSwimming" alt="林克表情" />
+            <strong>{{ responseMode === 'accept' ? 'Yay! ヽ(≧▽≦)ﾉ' : 'Oh no... (╥﹏╥)' }}</strong>
+          </div>
+          <button
+            v-if="responseMode === 'accept' && heardAcceptedResponse"
+            type="button"
+            class="training-field__response-prompt"
+            @click="showRefusedResponse"
+          >
+            如果公主拒绝邀约，她会说…
+          </button>
         </div>
 
         <div v-else-if="currentLevel.kind === 'chat-explore'" class="training-field__chat">
@@ -1414,6 +1494,119 @@ onBeforeUnmount(() => {
 
 .training-field__invite-part.is-playing {
   box-shadow: 0 0 0 2px rgba(112, 179, 94, 0.28);
+}
+
+.training-field__response-chat {
+  display: grid;
+  gap: 14px;
+  max-width: 720px;
+  min-height: 360px;
+  margin: 0 auto;
+  padding: 0 18px 24px;
+  background: #ededed;
+  border: 1px solid rgba(233, 225, 209, 0.2);
+}
+
+.training-field__response-row {
+  display: flex;
+  align-items: start;
+  gap: 10px;
+}
+
+.training-field__response-row--link {
+  justify-content: end;
+  padding-top: 18px;
+}
+
+.training-field__response-row--princess {
+  justify-content: start;
+}
+
+.training-field__response-avatar {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.training-field__response-avatar--link {
+  object-position: center 28%;
+}
+
+.training-field__response-avatar--princess {
+  object-position: 78% center;
+}
+
+.training-field__response-bubble {
+  max-width: min(78%, 500px);
+  padding: 11px 13px;
+  color: #1f2b1d;
+  font-size: 18px;
+  line-height: 1.45;
+  text-align: left;
+  border: 0;
+  border-radius: 4px;
+}
+
+.training-field__response-bubble--link {
+  background: #95ec69;
+}
+
+.training-field__response-bubble--princess {
+  color: #202020;
+  cursor: pointer;
+  background: #fff;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
+}
+
+.training-field__response-bubble--princess.is-playing {
+  background: #f4fff0;
+  box-shadow: 0 0 0 2px rgba(103, 173, 78, 0.3);
+}
+
+.training-field__response-sticker {
+  display: flex;
+  width: fit-content;
+  align-items: center;
+  gap: 9px;
+  margin-left: auto;
+  padding: 7px 11px 7px 7px;
+  color: #326d24;
+  background: #fff8cb;
+  border: 1px solid rgba(216, 176, 45, 0.56);
+  border-radius: 4px;
+}
+
+.training-field__response-sticker.is-sad {
+  margin-right: auto;
+  margin-left: 0;
+  color: #52657a;
+  background: #e8eff4;
+  border-color: rgba(82, 101, 122, 0.36);
+}
+
+.training-field__response-sticker img {
+  width: 46px;
+  height: 46px;
+  object-fit: cover;
+  object-position: center 28%;
+  border-radius: 4px;
+}
+
+.training-field__response-sticker strong {
+  font-size: 18px;
+}
+
+.training-field__response-prompt {
+  justify-self: center;
+  padding: 10px 15px;
+  color: #6c5b2e;
+  font-size: 15px;
+  cursor: pointer;
+  background: #fff5cc;
+  border: 1px solid rgba(216, 176, 45, 0.64);
+  border-radius: 4px;
 }
 
 .training-field__bubble {

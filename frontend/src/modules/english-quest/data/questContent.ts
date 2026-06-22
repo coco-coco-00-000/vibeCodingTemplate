@@ -621,21 +621,22 @@ export const trainingLevels: TrainingLevel[] = [
     id: 'level-13-response-explore',
     missionId: 'mission-2',
     levelNumber: 12,
-    title: '朋友回应分类',
+    title: '听懂朋友回应',
     kind: 'chat-explore',
-    screenCopy: '学习一下朋友不同的回应代表什么意思。',
+    screenCopy: '邀请之后，听懂朋友接受或拒绝时会怎么说。',
     questions: [
       {
         id: 'responses',
-        prompt: '主角发出邀请：Do you want to go swimming this Saturday?',
+        prompt: '点击公主的回应，听一听她的态度。',
+        sentence: 'Do you want to go swimming this Saturday?',
         pairs: [
-          { left: 'Sounds good.', right: '听起来不错。😊' },
-          { left: "Sorry, I can't.", right: '抱歉，我不行。😟' },
+          { left: 'Sounds good.', right: '听起来不错。' },
+          { left: "Sorry, I can't.", right: '抱歉，我不行。' },
         ],
       },
     ],
     feedback: '你听懂朋友的态度了。',
-    completion: '点击查看两个回应。',
+    completion: '听一听朋友接受和拒绝时的回应。',
     skillKeys: ['response-understanding'],
   },
   {

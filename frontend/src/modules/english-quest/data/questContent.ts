@@ -505,7 +505,7 @@ export const trainingLevels: TrainingLevel[] = [
   {
     id: 'level-7-invite-function',
     missionId: 'mission-2',
-    levelNumber: 7,
+    levelNumber: 6,
     title: '发现邀请功能',
     kind: 'chat-explore',
     screenCopy: '活动词块学会了，接下来学学邀请句型怎么说。',
@@ -528,7 +528,7 @@ export const trainingLevels: TrainingLevel[] = [
   {
     id: 'level-9-activity-slot',
     missionId: 'mission-2',
-    levelNumber: 8,
+    levelNumber: 7,
     title: '固定框架填活动槽',
     kind: 'choice',
     screenCopy: '把活动放进邀请句。',
@@ -552,7 +552,7 @@ export const trainingLevels: TrainingLevel[] = [
   {
     id: 'level-10-sentence-build',
     missionId: 'mission-2',
-    levelNumber: 9,
+    levelNumber: 8,
     title: '语块拼完整句',
     kind: 'sentence-build',
     screenCopy: '把语块排成一句完整邀请。',
@@ -571,7 +571,7 @@ export const trainingLevels: TrainingLevel[] = [
   {
     id: 'level-11-repeat',
     missionId: 'mission-2',
-    levelNumber: 10,
+    levelNumber: 9,
     title: '跟读完整句',
     kind: 'repeat',
     screenCopy: '跟读这句邀请。',
@@ -591,7 +591,7 @@ export const trainingLevels: TrainingLevel[] = [
   {
     id: 'level-12-fade-transfer',
     missionId: 'mission-2',
-    levelNumber: 11,
+    levelNumber: 10,
     title: '撤提示迁移',
     kind: 'speaking',
     screenCopy: '看活动图和日历，用完整邀请句说出来。',
@@ -620,7 +620,7 @@ export const trainingLevels: TrainingLevel[] = [
   {
     id: 'level-13-response-explore',
     missionId: 'mission-2',
-    levelNumber: 12,
+    levelNumber: 11,
     title: '听懂朋友回应',
     kind: 'chat-explore',
     screenCopy: '邀请之后，听懂朋友接受或拒绝时会怎么说。',
@@ -642,7 +642,7 @@ export const trainingLevels: TrainingLevel[] = [
   {
     id: 'level-14-response-match',
     missionId: 'mission-2',
-    levelNumber: 13,
+    levelNumber: 12,
     title: '听回应，选林克反应',
     kind: 'choice',
     screenCopy: '先听公主怎么回应，再判断林克会有什么反应。',
@@ -699,7 +699,7 @@ export const trainingLevels: TrainingLevel[] = [
   {
     id: 'level-15-closing',
     missionId: 'mission-2',
-    levelNumber: 14,
+    levelNumber: 13,
     title: '对话接力挑战',
     kind: 'chat-explore',
     screenCopy: '先听回应、选林克反应，再把合适的下一句接进对话。',
@@ -744,7 +744,7 @@ export const trainingLevels: TrainingLevel[] = [
   {
     id: 'level-16-dialogue-order',
     missionId: 'mission-2',
-    levelNumber: 15,
+    levelNumber: 14,
     title: '小对话排序',
     kind: 'dialogue-order',
     screenCopy: '把邀请、回应、收尾排成完整对话。',

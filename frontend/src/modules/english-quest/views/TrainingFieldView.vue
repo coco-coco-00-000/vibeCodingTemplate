@@ -79,6 +79,7 @@ const currentQuestion = computed(() => currentLevel.value.questions[questionInde
 const isLastQuestion = computed(() => questionIndex.value >= currentLevel.value.questions.length - 1)
 const isCurrentLevelComplete = computed(() => completedTrainingStepIds.value.includes(currentLevel.value.id))
 const levelCounter = computed(() => `${levelIndex.value + 1}/${trainingLevels.length}`)
+const currentLevelProgress = computed(() => Math.round(((levelIndex.value + 1) / trainingLevels.length) * 100))
 
 const selectedCorrect = computed(() => {
   if (!currentQuestion.value.correctOptionId) return false
@@ -299,9 +300,9 @@ onBeforeUnmount(() => {
   <main class="quest-screen training-field">
     <header v-if="learningStarted" class="training-field__header">
       <p class="quest-kicker">Training Shrine · {{ levelCounter }}</p>
-      <h2 class="quest-title">Level {{ currentLevel.levelNumber }}：{{ currentLevel.title }}</h2>
+      <h2 class="quest-title">{{ currentLevel.title }}</h2>
       <p class="quest-copy">{{ currentLevel.screenCopy }}</p>
-      <MasteryMeter label="主线进度" :value="trainingProgress" />
+      <MasteryMeter label="主线进度" :value="currentLevelProgress" />
     </header>
 
     <section v-if="!learningStarted" class="training-field__lobby" aria-label="语言训练场">

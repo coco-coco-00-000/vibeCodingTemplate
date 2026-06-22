@@ -287,9 +287,10 @@ onBeforeUnmount(() => {
         >
           <span aria-hidden="true">🔊</span>
           <strong>点击播放英文</strong>
+          <strong v-if="currentLevel.kind === 'repeat'" class="training-field__audio-sentence">{{ currentQuestion.sentence }}</strong>
         </button>
 
-        <div v-if="currentQuestion.sentence && currentLevel.id !== 'level-7-invite-function'" class="training-field__sentence">
+        <div v-if="currentQuestion.sentence && currentLevel.id !== 'level-7-invite-function' && currentLevel.kind !== 'repeat'" class="training-field__sentence">
           {{ currentQuestion.sentence }}
         </div>
 
@@ -728,6 +729,13 @@ onBeforeUnmount(() => {
 .training-field__audio.is-playing {
   color: #bff6ff;
   box-shadow: 0 0 18px rgba(60, 211, 252, 0.42);
+}
+
+.training-field__audio-sentence {
+  padding-left: 14px;
+  font-size: 24px;
+  line-height: 1.25;
+  border-left: 1px solid rgba(60, 211, 252, 0.38);
 }
 
 .training-field__transfer-image {

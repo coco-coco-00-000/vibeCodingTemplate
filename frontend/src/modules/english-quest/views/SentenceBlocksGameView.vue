@@ -35,8 +35,8 @@ const selectedToken = ref<FallingToken | null>(null)
 const slots = ref<Record<SlotName, string>>({ activity: '', time: '' })
 const feedback = ref('教学意图：把“下落词块”接进完整句型槽，训练句型生成而不只是词块分类。')
 const feedbackTone = ref<'default' | 'good' | 'bad'>('default')
-let timer: ReturnType<typeof window.setInterval> | undefined
-let nextTaskTimer: ReturnType<typeof window.setTimeout> | undefined
+let timer: number | undefined
+let nextTaskTimer: number | undefined
 
 const task = computed(() => tasks[taskIndex.value])
 const sentence = computed(() => `Do you want to ${slots.value.activity || 'activity'} ${slots.value.time || 'time'}?`)
@@ -60,8 +60,8 @@ function renderTask() {
 
 function getFallingToken(): FallingToken {
   const needed: Omit<FallingToken, 'id'>[] = [
-    { text: task.value.activity, role: 'activity', needed: true },
-    { text: task.value.time, role: 'time', needed: true },
+    { text: task.value.activity, role: 'activity' as const, needed: true },
+    { text: task.value.time, role: 'time' as const, needed: true },
   ].filter((token) => slots.value[token.role] !== token.text)
 
   const decoys: Omit<FallingToken, 'id'>[] = [
@@ -149,7 +149,7 @@ function fillSlot(slotName: SlotName) {
   const token = selectedToken.value
   if (!token) return
 
-  const expected = task.value[slotName]
+  const expected = slotName === 'activity' ? task.value.activity : task.value.time
   if (token.role === slotName && token.text === expected) {
     slots.value = { ...slots.value, [slotName]: token.text }
     updateFeedback(`填入正确：${token.text}。继续补全另一格。`, 'good')

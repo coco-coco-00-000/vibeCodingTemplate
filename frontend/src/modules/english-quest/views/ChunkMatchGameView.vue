@@ -27,7 +27,7 @@ const score = ref(0)
 const selectedTileId = ref<number | null>(null)
 const tiles = ref<MatchTile[]>([])
 const message = ref('先找出没有被压住、也没有被左右夹住的牌。英文牌点击后会朗读。')
-let matchTimer: ReturnType<typeof window.setTimeout> | undefined
+let matchTimer: number | undefined
 
 const pairs: PairDefinition[] = [
   ...activities.map((activity) => ({
